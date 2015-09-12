@@ -1,8 +1,6 @@
 package net.thechunk.playpen.visual;
 
 import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -12,10 +10,13 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import lombok.Getter;
 import net.thechunk.playpen.coordinator.VMShutdownThread;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -33,6 +34,9 @@ public class PVIApplication extends Application {
     private Stage primaryStage;
 
     @Getter
+    private PropertiesConfiguration config;
+
+    @Getter
     boolean closing = false;
 
     public PVIApplication() {
@@ -42,6 +46,23 @@ public class PVIApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        File configFile = new File(System.getProperty("user.home") + "/.playpenvi");
+        if (!configFile.exists()) {
+            try {
+                configFile.createNewFile();
+            } catch (IOException e) {
+                showExceptionDialog("Encountered Exception", "Unable to create new configuration file, exiting!", e);
+                quit();
+            }
+        }
+
+        try {
+            config = new PropertiesConfiguration(configFile);
+        } catch (ConfigurationException e) {
+            showExceptionDialog("Encountered Exception", "Unable to load preferences, exiting!", e);
+            quit();
+        }
+
         try {
             this.primaryStage = primaryStage;
 

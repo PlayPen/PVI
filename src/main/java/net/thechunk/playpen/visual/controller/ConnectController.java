@@ -5,10 +5,16 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
+import lombok.extern.log4j.Log4j2;
 import net.thechunk.playpen.visual.PVIApplication;
 import net.thechunk.playpen.visual.PVIClient;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.logging.log4j.Level;
 
 import java.net.InetAddress;
 import java.net.URL;
@@ -16,6 +22,7 @@ import java.net.UnknownHostException;
 import java.util.Random;
 import java.util.ResourceBundle;
 
+@Log4j2
 public class ConnectController implements Initializable {
     @FXML
     TextField nameInput;
@@ -38,13 +45,24 @@ public class ConnectController implements Initializable {
     @FXML
     Text connectText;
 
+    private Configuration config;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // try to get the hostname
-        try {
-            nameInput.setText("PVI-" + InetAddress.getLocalHost().getHostName());
-        } catch (UnknownHostException e) {
-            nameInput.setText("PVI-" + new Random().nextInt(9999));
+        config = PVIApplication.get().getConfig().subset(getClass().getName());
+
+        nameInput.setText(config.getString("clientName", ""));
+        uuidInput.setText(config.getString("clientUuid", ""));
+        keyInput.setText(config.getString("clientKey", ""));
+        ipInput.setText(config.getString("networkIp", "127.0.0.1"));
+        portInput.setText(config.getInteger("networkPort", 25501).toString());
+
+        if (nameInput.getText().trim().length() == 0) {
+            try {
+                nameInput.setText("PVI-" + InetAddress.getLocalHost().getHostName());
+            } catch (UnknownHostException e) {
+                nameInput.setText("PVI-" + new Random().nextInt(9999));
+            }
         }
     }
 
@@ -104,6 +122,19 @@ public class ConnectController implements Initializable {
 
         connectText.setText("Connecting to " + ip + ":" + port + "...");
         connectText.setVisible(true);
+
+        // save preferences
+        config.setProperty("clientName", nameInput.getText());
+        config.setProperty("clientUuid", uuidInput.getText());
+        config.setProperty("clientKey", keyInput.getText());
+        config.setProperty("networkIp", ipInput.getText());
+        config.setProperty("networkPort", port);
+
+        try {
+            PVIApplication.get().getConfig().save();
+        } catch (ConfigurationException e) {
+            log.log(Level.WARN, "Unable to save configuration", e);
+        }
 
         final PVIClient client = new PVIClient(nameInput.getText(), uuidInput.getText(), keyInput.getText(), ip, port);
         new Thread(new Task<Void>() {

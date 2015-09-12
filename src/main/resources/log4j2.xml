@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration packages="net.thechunk.playpen.visual.util">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout>
+                <Pattern>%-5p %c{1}: %m%n</Pattern>
+            </PatternLayout>
+        </Console>
+        <WorkspaceAppender name="workspace">
+            <PatternLayout>
+                <Pattern>%-5p %c{1}: %m%n</Pattern>
+            </PatternLayout>
+        </WorkspaceAppender>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="workspace" />
+        </Root>
+        <Logger name="org.zeroturnaround.zip.ZipUtil" level="warn">
+        </Logger>
+    </Loggers>
+</Configuration>

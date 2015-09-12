@@ -1,14 +1,14 @@
 package net.thechunk.playpen.visual;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import lombok.extern.log4j.Log4j2;
 import net.thechunk.playpen.coordinator.PlayPen;
 import net.thechunk.playpen.coordinator.api.APIClient;
 import net.thechunk.playpen.networking.TransactionInfo;
+import net.thechunk.playpen.networking.TransactionManager;
 import net.thechunk.playpen.protocol.Commands;
+import net.thechunk.playpen.protocol.Protocol;
 
 import java.net.InetAddress;
 
@@ -117,5 +117,30 @@ public class PVIClient extends APIClient {
     @Override
     public boolean processAck(Commands.C_Ack c_ack, TransactionInfo transactionInfo) {
         return false;
+    }
+
+    public boolean sendSync() {
+        Commands.Sync sync = Commands.Sync.newBuilder()
+                .setEnabled(false)
+                .setName(getName())
+                .build();
+
+        Commands.BaseCommand command = Commands.BaseCommand.newBuilder()
+                .setType(Commands.BaseCommand.CommandType.SYNC)
+                .setSync(sync)
+                .build();
+
+        TransactionInfo info = TransactionManager.get().begin();
+
+        Protocol.Transaction message = TransactionManager.get()
+                .build(info.getId(), Protocol.Transaction.Mode.SINGLE, command);
+        if (message == null) {
+            log.error("Unable to build message for sync");
+            TransactionManager.get().cancel(info.getId());
+            return false;
+        }
+
+        log.info("Sending SYNC to network coordinator");
+        return TransactionManager.get().send(info.getId(), message, null);
     }
 }
