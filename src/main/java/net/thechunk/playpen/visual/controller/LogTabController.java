@@ -8,7 +8,7 @@ import net.thechunk.playpen.visual.util.WorkspaceLogAppender;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class LogConsoleController implements Initializable {
+public class LogTabController implements Initializable {
     @FXML
     TextArea consoleArea;
 
@@ -16,7 +16,7 @@ public class LogConsoleController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         consoleArea.setText("");
 
-        WorkspaceLogAppender.get().setLogConsoleController(this);
+        WorkspaceLogAppender.get().setLogTabController(this);
         WorkspaceLogAppender.get().pumpQueue();
     }
 

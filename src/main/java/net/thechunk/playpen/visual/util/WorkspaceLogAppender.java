@@ -2,7 +2,7 @@ package net.thechunk.playpen.visual.util;
 
 import javafx.application.Platform;
 import lombok.Setter;
-import net.thechunk.playpen.visual.controller.LogConsoleController;
+import net.thechunk.playpen.visual.controller.LogTabController;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
@@ -33,17 +33,17 @@ public class WorkspaceLogAppender extends AbstractAppender {
     private final Lock readLock = rwLock.readLock();
 
     @Setter
-    private LogConsoleController logConsoleController;
+    private LogTabController logTabController;
 
     private Queue<String> logQueue = new LinkedList<>();
 
     public void pumpQueue() {
-        if (logConsoleController == null)
+        if (logTabController == null)
             return;
 
         synchronized (logQueue) {
             while (!logQueue.isEmpty()) {
-                logConsoleController.log(logQueue.remove());
+                logTabController.log(logQueue.remove());
             }
         }
     }
@@ -62,7 +62,7 @@ public class WorkspaceLogAppender extends AbstractAppender {
                 logQueue.add(message);
             }
 
-            if (logConsoleController != null) {
+            if (logTabController != null) {
                 Platform.runLater(this::pumpQueue);
             }
         } catch (Exception ex) {

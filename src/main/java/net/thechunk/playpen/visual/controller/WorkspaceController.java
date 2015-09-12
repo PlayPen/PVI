@@ -1,14 +1,16 @@
 package net.thechunk.playpen.visual.controller;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Parent;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import lombok.Getter;
 import lombok.Setter;
 import net.thechunk.playpen.networking.TransactionInfo;
@@ -21,6 +23,8 @@ import net.thechunk.playpen.visual.PVIClient;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class WorkspaceController implements Initializable, PPEventListener {
@@ -30,9 +34,11 @@ public class WorkspaceController implements Initializable, PPEventListener {
     @FXML
     TreeView<String> coordinatorTree;
 
+    private TreeItem<String> rootNode = new TreeItem<>("Network");
+
     private Tab consoleTab;
 
-    private TreeItem<String> rootNode = new TreeItem<>("Network");
+    private Map<String, CoordinatorTabController> coordinatorTabs = new HashMap<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -42,9 +48,14 @@ public class WorkspaceController implements Initializable, PPEventListener {
         }
 
         coordinatorTree.setRoot(rootNode);
+        coordinatorTree.setOnMouseClicked(event -> {
+            if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+                handleTreeItemDoubleClick(coordinatorTree.getSelectionModel().getSelectedItem());
+            }
+        });
 
         try {
-            consoleTab = (Tab) FXMLLoader.load(getClass().getClassLoader().getResource("ui/Log.fxml"));
+            consoleTab = FXMLLoader.load(getClass().getClassLoader().getResource("ui/LogTab.fxml"));
             tabPane.getTabs().add(consoleTab);
             tabPane.getSelectionModel().select(consoleTab);
         } catch (IOException e) {
@@ -65,6 +76,48 @@ public class WorkspaceController implements Initializable, PPEventListener {
         //PVIClient.get().getScheduler().scheduleAtFixedRate(() -> PVIClient.get().sendListRequest(), 1, 30, TimeUnit.SECONDS);
     }
 
+    private void handleTreeItemDoubleClick(TreeItem<String> item) {
+        if (item == null)
+            return;
+
+        item.setExpanded(true);
+
+        if (item == rootNode) {
+            // TODO: Make this into a tab instead of an alert
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Network Information");
+            alert.setHeaderText(null);
+            alert.setContentText("Connected to PlayPen Network at " + PVIClient.get().getNetworkIP() + ":"
+                    + PVIClient.get().getNetworkPort() + " as " + PVIClient.get().getName());
+            alert.showAndWait();
+        }
+        else if (item instanceof CoordinatorTreeItem) {
+            Coordinator.LocalCoordinator coordinator = ((CoordinatorTreeItem)item).getCoordinator();
+            if (coordinatorTabs.containsKey(coordinator.getUuid())) {
+                tabPane.getSelectionModel().select(coordinatorTabs.get(coordinator.getUuid()).getTab());
+            }
+            else {
+                try {
+                    FXMLLoader loader = new FXMLLoader();
+                    loader.setLocation(getClass().getClassLoader().getResource("ui/COordinatorTab.fxml"));
+                    loader.setBuilderFactory(new JavaFXBuilderFactory());
+                    Tab tab = loader.load();
+                    tab.setText(coordinator.hasName() ? coordinator.getName() : coordinator.getUuid());
+                    tabPane.getTabs().add(tab);
+                    tabPane.getSelectionModel().select(tab);
+
+                    CoordinatorTabController controller = loader.getController();
+                    controller.setTab(tab);
+                    controller.setCoordinator(coordinator);
+                    coordinatorTabs.put(coordinator.getUuid(), controller);
+                } catch (IOException e) {
+                    PVIApplication.get().showExceptionDialog("Exception Encountered", "Unable to open tab for coordinator", e);
+                    return;
+                }
+            }
+        }
+    }
+
     @FXML
     protected void handleRefreshButtonPressed(ActionEvent event) {
         PVIClient.get().sendListRequest();
@@ -72,13 +125,18 @@ public class WorkspaceController implements Initializable, PPEventListener {
 
     @Override
     public void receivedListResponse(Commands.C_CoordinatorListResponse response, TransactionInfo info) {
-        rootNode.getChildren().clear();
-        for (Coordinator.LocalCoordinator coordinator : response.getCoordinatorsList()) {
-            rootNode.getChildren().add(new CoordinatorTreeItem(coordinator));
-        }
+        Platform.runLater(() -> {
+            rootNode.getChildren().clear();
+            for (Coordinator.LocalCoordinator coordinator : response.getCoordinatorsList()) {
+                rootNode.getChildren().add(new CoordinatorTreeItem(coordinator));
+                if (coordinatorTabs.containsKey(coordinator.getUuid())) {
+                    coordinatorTabs.get(coordinator.getUuid()).setCoordinator(coordinator);
+                }
+            }
 
-        rootNode.getChildren().sort((a, b) -> a.getValue().compareTo(b.getValue()));
-        rootNode.setExpanded(true);
+            rootNode.getChildren().sort((a, b) -> a.getValue().compareTo(b.getValue()));
+            rootNode.setExpanded(true);
+        });
     }
 
     private static final class CoordinatorTreeItem extends TreeItem<String> {
