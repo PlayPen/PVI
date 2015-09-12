@@ -99,7 +99,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
             else {
                 try {
                     FXMLLoader loader = new FXMLLoader();
-                    loader.setLocation(getClass().getClassLoader().getResource("ui/COordinatorTab.fxml"));
+                    loader.setLocation(getClass().getClassLoader().getResource("ui/CoordinatorTab.fxml"));
                     loader.setBuilderFactory(new JavaFXBuilderFactory());
                     Tab tab = loader.load();
                     tab.setText(coordinator.hasName() ? coordinator.getName() : coordinator.getUuid());
