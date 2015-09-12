@@ -56,6 +56,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
 
         try {
             consoleTab = FXMLLoader.load(getClass().getClassLoader().getResource("ui/LogTab.fxml"));
+            consoleTab.setClosable(false);
             tabPane.getTabs().add(consoleTab);
             tabPane.getSelectionModel().select(consoleTab);
         } catch (IOException e) {
@@ -73,7 +74,6 @@ public class WorkspaceController implements Initializable, PPEventListener {
         }
 
         PVIClient.get().sendListRequest();
-        //PVIClient.get().getScheduler().scheduleAtFixedRate(() -> PVIClient.get().sendListRequest(), 1, 30, TimeUnit.SECONDS);
     }
 
     private void handleTreeItemDoubleClick(TreeItem<String> item) {
@@ -103,6 +103,10 @@ public class WorkspaceController implements Initializable, PPEventListener {
                     loader.setBuilderFactory(new JavaFXBuilderFactory());
                     Tab tab = loader.load();
                     tab.setText(coordinator.hasName() ? coordinator.getName() : coordinator.getUuid());
+                    tab.setClosable(true);
+                    tab.setOnClosed(event -> {
+                        coordinatorTabs.remove(coordinator.getUuid());
+                    });
                     tabPane.getTabs().add(tab);
                     tabPane.getSelectionModel().select(tab);
 
