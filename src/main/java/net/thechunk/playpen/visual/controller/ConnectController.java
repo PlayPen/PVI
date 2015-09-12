@@ -10,6 +10,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import lombok.extern.log4j.Log4j2;
+import net.thechunk.playpen.networking.TransactionInfo;
+import net.thechunk.playpen.protocol.Commands;
+import net.thechunk.playpen.visual.PPEventListener;
 import net.thechunk.playpen.visual.PVIApplication;
 import net.thechunk.playpen.visual.PVIClient;
 import org.apache.commons.configuration.Configuration;
@@ -23,7 +26,7 @@ import java.util.Random;
 import java.util.ResourceBundle;
 
 @Log4j2
-public class ConnectController implements Initializable {
+public class ConnectController implements Initializable, PPEventListener {
     @FXML
     TextField nameInput;
 
@@ -187,5 +190,10 @@ public class ConnectController implements Initializable {
         connectText.setVisible(false);
 
         setFormDisable(false);
+    }
+
+    @Override
+    public void receivedListResponse(Commands.C_CoordinatorListResponse response, TransactionInfo info) {
+
     }
 }
