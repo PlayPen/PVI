@@ -14,6 +14,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.thechunk.playpen.coordinator.VMShutdownThread;
@@ -157,6 +158,11 @@ public class PVIApplication extends Application {
     }
 
     public void showTransactionDialog(String processName, TransactionInfo info) {
+        if (TransactionManager.get().getInfo(info.getId()) == null) {
+            log.warn("Tried to show processing dialog for invalid transaction " + info.getId());
+            return;
+        }
+
         Parent root;
         try {
             root = FXMLLoader.load(getClass().getClassLoader().getResource("ui/ProcessDialog.fxml"));
@@ -166,11 +172,14 @@ public class PVIApplication extends Application {
         }
 
         Scene scene = new Scene(root);
-        Stage stage = new Stage();
+        Stage stage = new Stage(StageStyle.UNDECORATED);
         stage.setScene(scene);
         stage.setTitle("Waiting for Process");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setOnCloseRequest(event -> event.consume());
+        stage.setResizable(false);
+        stage.setX(primaryStage.getX() + primaryStage.getWidth() / 2d);
+        stage.setY(primaryStage.getY() + primaryStage.getHeight() / 2d);
 
         Text processText = (Text) scene.lookup("#processText");
         Text idText = (Text) scene.lookup("#idText");
@@ -186,7 +195,7 @@ public class PVIApplication extends Application {
                 log.info("Transaction " + info.getId() + " completed.");
                 Platform.runLater(() -> {
                     progress.setProgress(1);
-                    PVIClient.get().getScheduler().schedule(() -> Platform.runLater(stage::close), 2, TimeUnit.SECONDS);
+                    PVIClient.get().getScheduler().schedule(() -> Platform.runLater(stage::close), 1500, TimeUnit.MILLISECONDS);
                 });
             }
 

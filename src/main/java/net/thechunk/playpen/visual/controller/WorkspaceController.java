@@ -122,7 +122,18 @@ public class WorkspaceController implements Initializable, PPEventListener {
 
     @FXML
     protected void handleRefreshButtonPressed(ActionEvent event) {
-        PVIClient.get().sendListRequest();
+        TransactionInfo info = PVIClient.get().sendListRequest();
+
+        if (info == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Unable to send coordinator list request to network.");
+            alert.showAndWait();
+        }
+        else {
+            PVIApplication.get().showTransactionDialog("Network Refresh", info);
+        }
     }
 
     @Override
@@ -133,7 +144,9 @@ public class WorkspaceController implements Initializable, PPEventListener {
             for (Coordinator.LocalCoordinator coordinator : response.getCoordinatorsList()) {
                 rootNode.getChildren().add(new CoordinatorTreeItem(coordinator));
                 if (coordinatorTabs.containsKey(coordinator.getUuid())) {
-                    coordinatorTabs.get(coordinator.getUuid()).setCoordinator(coordinator);
+                    CoordinatorTabController controller = coordinatorTabs.get(coordinator.getUuid());
+                    controller.getTab().setText(coordinator.hasName() ? coordinator.getName() : coordinator.getUuid());
+                    controller.setCoordinator(coordinator);
                 }
 
                 coordIds.add(coordinator.getUuid());
