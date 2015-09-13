@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="400.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
+  <children>
+    <VBox alignment="TOP_CENTER" prefHeight="250.0" prefWidth="400.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+      <children>
+        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Waiting for Process">
+          <font>
+            <Font name="System Bold" size="20.0" />
+          </font>
+        </Text>
+        <Text fx:id="processText" strokeType="OUTSIDE" strokeWidth="0.0" text="UNKNOWN_PROCESS">
+          <font>
+            <Font size="12.0" />
+          </font>
+        </Text>
+        <Text fx:id="idText" strokeType="OUTSIDE" strokeWidth="0.0" text="ID">
+          <font>
+            <Font name="System Italic" size="12.0" />
+          </font>
+        </Text>
+        <ProgressIndicator fx:id="progressIndicator" disable="false" progress="-1.0" VBox.vgrow="ALWAYS">
+          <VBox.margin>
+            <Insets bottom="10.0" top="10.0" />
+          </VBox.margin>
+        </ProgressIndicator>
+      </children>
+    </VBox>
+  </children>
+</AnchorPane>

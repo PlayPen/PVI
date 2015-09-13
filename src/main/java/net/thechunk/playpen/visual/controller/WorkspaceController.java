@@ -22,10 +22,7 @@ import net.thechunk.playpen.visual.PVIClient;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class WorkspaceController implements Initializable, PPEventListener {
     @FXML
@@ -132,10 +129,23 @@ public class WorkspaceController implements Initializable, PPEventListener {
     public void receivedListResponse(Commands.C_CoordinatorListResponse response, TransactionInfo info) {
         Platform.runLater(() -> {
             rootNode.getChildren().clear();
+            Set<String> coordIds = new HashSet<String>();
             for (Coordinator.LocalCoordinator coordinator : response.getCoordinatorsList()) {
                 rootNode.getChildren().add(new CoordinatorTreeItem(coordinator));
                 if (coordinatorTabs.containsKey(coordinator.getUuid())) {
                     coordinatorTabs.get(coordinator.getUuid()).setCoordinator(coordinator);
+                }
+
+                coordIds.add(coordinator.getUuid());
+            }
+
+            Iterator<String> itr = coordinatorTabs.keySet().iterator();
+            while (itr.hasNext()) {
+                String uuid = itr.next();
+                if (!coordIds.contains(uuid)) {
+                    CoordinatorTabController controller = coordinatorTabs.get(uuid);
+                    tabPane.getTabs().remove(controller.getTab());
+                    itr.remove();
                 }
             }
 

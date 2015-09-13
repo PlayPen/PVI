@@ -174,4 +174,28 @@ public class PVIClient extends APIClient {
             return info;
         return null;
     }
+
+    public boolean sendShutdown(String coordId) {
+        Commands.C_Shutdown shutdown = Commands.C_Shutdown.newBuilder()
+                .setUuid(coordId)
+                .build();
+
+        Commands.BaseCommand command = Commands.BaseCommand.newBuilder()
+                .setType(Commands.BaseCommand.CommandType.C_SHUTDOWN)
+                .setCShutdown(shutdown)
+                .build();
+
+        TransactionInfo info = TransactionManager.get().begin();
+
+        Protocol.Transaction message = TransactionManager.get()
+                .build(info.getId(), Protocol.Transaction.Mode.SINGLE, command);
+        if (message == null) {
+            log.error("Unable to build message for C_SHUTDOWN");
+            TransactionManager.get().cancel(info.getId());
+            return false;
+        }
+
+        log.info("Sending C_SHUTDOWN to network");
+        return TransactionManager.get().send(info.getId(), message, null);
+    }
 }

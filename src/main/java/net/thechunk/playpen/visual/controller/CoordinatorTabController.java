@@ -13,6 +13,7 @@ import javafx.scene.text.Text;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import net.thechunk.playpen.networking.TransactionInfo;
 import net.thechunk.playpen.protocol.Coordinator;
 import net.thechunk.playpen.visual.PVIApplication;
 import net.thechunk.playpen.visual.PVIClient;
@@ -20,6 +21,7 @@ import net.thechunk.playpen.visual.PVIClient;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.TimeUnit;
 
 public class CoordinatorTabController implements Initializable {
     @FXML
@@ -91,11 +93,22 @@ public class CoordinatorTabController implements Initializable {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
-            alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Shutdown is not currently implemented.");
-            alert.showAndWait();
+            if (PVIClient.get().sendShutdown(coordinator.getUuid())) {
+                alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Success");
+                alert.setHeaderText(null);
+                alert.setContentText("Sent shutdown of " + coordinator.getUuid() + " to network.");
+                alert.showAndWait();
+
+                PVIClient.get().getScheduler().schedule(() -> PVIClient.get().sendListRequest(), 5, TimeUnit.SECONDS);
+            }
+            else {
+                alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Unable to send shutdown to network. Check log for details.");
+                alert.showAndWait();
+            }
         }
     }
 
