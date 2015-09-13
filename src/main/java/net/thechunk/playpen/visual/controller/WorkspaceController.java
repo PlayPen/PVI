@@ -36,6 +36,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
     private Tab consoleTab;
 
     private Map<String, CoordinatorTabController> coordinatorTabs = new HashMap<>();
+    private Map<String, ServerTabController> serverTabs = new HashMap<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -71,7 +72,17 @@ public class WorkspaceController implements Initializable, PPEventListener {
             return;
         }
 
-        PVIClient.get().sendListRequest();
+        TransactionInfo info = PVIClient.get().sendListRequest();
+        if (info == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Unable to send coordinator list request to network.");
+            alert.showAndWait();
+        }
+        else {
+            PVIApplication.get().showTransactionDialog("Network Refresh", info);
+        }
     }
 
     private void handleTreeItemDoubleClick(TreeItem<String> item) {
@@ -114,7 +125,37 @@ public class WorkspaceController implements Initializable, PPEventListener {
                     coordinatorTabs.put(coordinator.getUuid(), controller);
                 } catch (IOException e) {
                     PVIApplication.get().showExceptionDialog("Exception Encountered", "Unable to open tab for coordinator", e);
-                    return;
+                }
+            }
+        }
+        else if(item instanceof ServerTreeItem) {
+            ServerTreeItem serverTreeItem = (ServerTreeItem) item;
+            Coordinator.LocalCoordinator coordinator = serverTreeItem.getCoordinator();
+            Coordinator.Server server = serverTreeItem.getServer();
+            if (serverTabs.containsKey(server.getUuid())) {
+                tabPane.getSelectionModel().select(serverTabs.get(server.getUuid()).getTab());
+            }
+            else {
+                try {
+                    FXMLLoader loader = new FXMLLoader();
+                    loader.setLocation(getClass().getClassLoader().getResource("ui/ServerTab.fxml"));
+                    loader.setBuilderFactory(new JavaFXBuilderFactory());
+                    Tab tab = loader.load();
+                    tab.setText(server.hasName() ? server.getName() : server.getUuid());
+                    tab.setClosable(true);
+                    tab.setOnClosed(event -> {
+                        serverTabs.remove(server.getUuid());
+                    });
+                    tabPane.getTabs().add(tab);
+                    tabPane.getSelectionModel().select(tab);
+
+                    ServerTabController controller = loader.getController();
+                    controller.setTab(tab);
+                    controller.setServer(coordinator, server);
+                    serverTabs.put(server.getUuid(), controller);
+                }
+                catch (IOException e) {
+                    PVIApplication.get().showExceptionDialog("Exception encountered", "Unable to open tab for server", e);
                 }
             }
         }
@@ -140,7 +181,8 @@ public class WorkspaceController implements Initializable, PPEventListener {
     public void receivedListResponse(Commands.C_CoordinatorListResponse response, TransactionInfo info) {
         Platform.runLater(() -> {
             rootNode.getChildren().clear();
-            Set<String> coordIds = new HashSet<String>();
+            Set<String> coordIds = new HashSet<>();
+            Set<String> serverIds = new HashSet<>();
             for (Coordinator.LocalCoordinator coordinator : response.getCoordinatorsList()) {
                 rootNode.getChildren().add(new CoordinatorTreeItem(coordinator));
                 if (coordinatorTabs.containsKey(coordinator.getUuid())) {
@@ -150,6 +192,16 @@ public class WorkspaceController implements Initializable, PPEventListener {
                 }
 
                 coordIds.add(coordinator.getUuid());
+
+                for (Coordinator.Server server : coordinator.getServersList()) {
+                    if (serverTabs.containsKey(server.getUuid())) {
+                        ServerTabController controller = serverTabs.get(server.getUuid());
+                        controller.getTab().setText(server.hasName() ? server.getName() : server.getUuid());
+                        controller.setServer(coordinator, server);
+                    }
+
+                    serverIds.add(server.getUuid());
+                }
             }
 
             Iterator<String> itr = coordinatorTabs.keySet().iterator();
@@ -157,6 +209,16 @@ public class WorkspaceController implements Initializable, PPEventListener {
                 String uuid = itr.next();
                 if (!coordIds.contains(uuid)) {
                     CoordinatorTabController controller = coordinatorTabs.get(uuid);
+                    tabPane.getTabs().remove(controller.getTab());
+                    itr.remove();
+                }
+            }
+
+            itr = serverTabs.keySet().iterator();
+            while(itr.hasNext()) {
+                String uuid = itr.next();
+                if (!serverIds.contains(uuid)) {
+                    ServerTabController controller = serverTabs.get(uuid);
                     tabPane.getTabs().remove(controller.getTab());
                     itr.remove();
                 }
@@ -176,7 +238,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
             this.coordinator = coordinator;
 
             for (Coordinator.Server server : coordinator.getServersList()) {
-                this.getChildren().add(new ServerTreeItem(server));
+                this.getChildren().add(new ServerTreeItem(coordinator, server));
             }
 
             this.getChildren().sort((a, b) -> a.getValue().compareTo(b.getValue()));
@@ -187,9 +249,13 @@ public class WorkspaceController implements Initializable, PPEventListener {
         @Getter
         private Coordinator.Server server;
 
-        public ServerTreeItem(Coordinator.Server server) {
+        @Getter
+        private Coordinator.LocalCoordinator coordinator;
+
+        public ServerTreeItem(Coordinator.LocalCoordinator coordinator, Coordinator.Server server) {
             super((server.hasName() ? server.getName() : server.getUuid()) + " (" + server.getP3().getId() + " @ " + server.getP3().getVersion() + ")");
             this.server = server;
+            this.coordinator = coordinator;
         }
     }
 }

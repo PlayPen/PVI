@@ -13,7 +13,7 @@
   <content>
     <AnchorPane id="Content" minHeight="300.0" minWidth="300.0" prefHeight="600.0" prefWidth="500.0">
       <children>
-        <VBox prefHeight="500.0" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <VBox prefHeight="600.0" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
           <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Coordinator">
               <font>

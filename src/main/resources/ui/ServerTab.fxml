@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<Tab text="Log" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.thechunk.playpen.visual.controller.ServerTabController">
+  <content>
+    <AnchorPane id="Content" minHeight="300.0" minWidth="300.0" prefHeight="500.0" prefWidth="800.0">
+      <SplitPane dividerPositions="0.6879699248120301" focusTraversable="true" prefHeight="500.0" prefWidth="800.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="-1.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+            <padding>
+              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" fx:id="x1" />
+            </padding>
+          </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" padding="$x1" prefHeight="498.0" prefWidth="379.0">
+            <children>
+              <VBox prefHeight="498.0" prefWidth="454.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Server">
+                    <font>
+                      <Font name="System Bold" size="16.0" />
+                    </font>
+                  </Text>
+                  <GridPane prefWidth="236.0">
+                    <children>
+                      <Label text="UUID" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                      <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                      <Label text="Package" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                      <Label text="Coordinator" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                      <TextField id="" fx:id="uuidField" editable="false" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                      <TextField id="" fx:id="nameField" editable="false" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                      <TextField fx:id="packageField" editable="false" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                      <TextField fx:id="coordinatorField" editable="false" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    </children>
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="199.0" minWidth="10.0" prefWidth="68.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="335.0" minWidth="10.0" prefWidth="335.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                  </GridPane>
+                </children>
+              </VBox>
+            </children>
+          </AnchorPane>
+        </items>
+      </SplitPane>
+    </AnchorPane>
+  </content>
+</Tab>

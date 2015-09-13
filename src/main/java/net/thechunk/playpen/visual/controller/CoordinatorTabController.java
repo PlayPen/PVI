@@ -65,9 +65,7 @@ public class CoordinatorTabController implements Initializable {
         this.coordinator = coordinator;
 
         uuidField.setText(coordinator.getUuid());
-        if (coordinator.hasName())
-            nameField.setText(coordinator.getName());
-
+        nameField.setText(coordinator.hasName() ? coordinator.getName() : "");
         enabledField.setSelected(coordinator.getEnabled());
 
         final ObservableList<ResourceValue> resources = FXCollections.observableArrayList();
