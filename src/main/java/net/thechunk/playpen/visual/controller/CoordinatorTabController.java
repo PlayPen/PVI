@@ -4,16 +4,21 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Text;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import net.thechunk.playpen.protocol.Coordinator;
+import net.thechunk.playpen.visual.PVIApplication;
+import net.thechunk.playpen.visual.PVIClient;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class CoordinatorTabController implements Initializable {
@@ -34,6 +39,12 @@ public class CoordinatorTabController implements Initializable {
 
     @FXML
     TableColumn<ResourceValue, Integer> valueColumn;
+
+    @FXML
+    ListView<String> attributesList;
+
+    @FXML
+    Text serversText;
 
     @Getter
     @Setter
@@ -63,7 +74,29 @@ public class CoordinatorTabController implements Initializable {
         }
 
         resourcesTable.setItems(resources);
-        resourcesTable.refresh();
+
+        final ObservableList<String> attributes = FXCollections.observableArrayList(coordinator.getAttributesList());
+        attributesList.setItems(attributes);
+
+        serversText.setText(coordinator.getServersList().size() + " servers");
+    }
+
+    @FXML
+    protected void handleShutdownButtonPressed(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Shutdown Coordinator");
+        alert.setHeaderText("Are you sure you want to shutdown coordinator " + (coordinator.hasName() ? coordinator.getName() : coordinator.getUuid()) + "?");
+        alert.setContentText("Shutting down a coordinator will tell it to disconnect from the network and safely " +
+                "shutdown all servers, before stopping itself.");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Shutdown is not currently implemented.");
+            alert.showAndWait();
+        }
     }
 
     public static class ResourceValue {

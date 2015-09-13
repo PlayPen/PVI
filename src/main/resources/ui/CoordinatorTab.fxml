@@ -11,13 +11,13 @@
 
 <Tab text="Coordinator" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.thechunk.playpen.visual.controller.CoordinatorTabController">
   <content>
-    <AnchorPane id="Content" minHeight="300.0" minWidth="300.0" prefHeight="500.0" prefWidth="500.0">
+    <AnchorPane id="Content" minHeight="300.0" minWidth="300.0" prefHeight="600.0" prefWidth="500.0">
       <children>
         <VBox prefHeight="500.0" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
           <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Coordinator">
               <font>
-                <Font name="System Bold" size="12.0" />
+                <Font name="System Bold" size="16.0" />
               </font>
             </Text>
             <GridPane>
@@ -46,7 +46,17 @@
               </columns>
             </TableView>
             <Label text="Attributes:" />
-            <ListView prefHeight="120.0" prefWidth="480.0" />
+            <ListView id="attributesTable" fx:id="attributesList" prefHeight="120.0" prefWidth="480.0" />
+            <Text fx:id="serversText" strokeType="OUTSIDE" strokeWidth="0.0" text="? servers">
+              <font>
+                <Font size="14.0" />
+              </font>
+            </Text>
+            <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="200.0">
+              <children>
+                <Button mnemonicParsing="false" onAction="#handleShutdownButtonPressed" text="Shutdown" textFill="RED" />
+              </children>
+            </HBox>
           </children>
           <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
