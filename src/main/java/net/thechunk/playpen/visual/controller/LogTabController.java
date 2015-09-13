@@ -22,6 +22,6 @@ public class LogTabController implements Initializable {
 
     public void log(String message) {
         consoleArea.setText(consoleArea.getText() + message);
-        consoleArea.setScrollTop(consoleArea.getHeight());
+        consoleArea.setScrollTop(Double.MAX_VALUE);
     }
 }

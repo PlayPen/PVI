@@ -26,7 +26,7 @@ import java.util.Random;
 import java.util.ResourceBundle;
 
 @Log4j2
-public class ConnectController implements Initializable, PPEventListener {
+public class ConnectController implements Initializable {
     @FXML
     TextField nameInput;
 
@@ -190,10 +190,5 @@ public class ConnectController implements Initializable, PPEventListener {
         connectText.setVisible(false);
 
         setFormDisable(false);
-    }
-
-    @Override
-    public void receivedListResponse(Commands.C_CoordinatorListResponse response, TransactionInfo info) {
-
     }
 }

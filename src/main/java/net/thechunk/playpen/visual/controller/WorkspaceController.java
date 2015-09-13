@@ -13,6 +13,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import net.thechunk.playpen.networking.TransactionInfo;
 import net.thechunk.playpen.protocol.Commands;
 import net.thechunk.playpen.protocol.Coordinator;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+@Log4j2
 public class WorkspaceController implements Initializable, PPEventListener {
     @FXML
     TabPane tabPane;
@@ -141,15 +143,19 @@ public class WorkspaceController implements Initializable, PPEventListener {
                     loader.setLocation(getClass().getClassLoader().getResource("ui/ServerTab.fxml"));
                     loader.setBuilderFactory(new JavaFXBuilderFactory());
                     Tab tab = loader.load();
+                    ServerTabController controller = loader.getController();
+
                     tab.setText(server.hasName() ? server.getName() : server.getUuid());
                     tab.setClosable(true);
                     tab.setOnClosed(event -> {
                         serverTabs.remove(server.getUuid());
+                        if (controller.getConsoleId() != null) {
+                            PVIClient.get().sendDetachConsole(controller.getConsoleId());
+                        }
                     });
                     tabPane.getTabs().add(tab);
                     tabPane.getSelectionModel().select(tab);
 
-                    ServerTabController controller = loader.getController();
                     controller.setTab(tab);
                     controller.setServer(coordinator, server);
                     serverTabs.put(server.getUuid(), controller);
@@ -227,6 +233,51 @@ public class WorkspaceController implements Initializable, PPEventListener {
             rootNode.getChildren().sort((a, b) -> a.getValue().compareTo(b.getValue()));
             rootNode.setExpanded(true);
         });
+    }
+
+    @Override
+    public void receivedConsoleAttach(String consoleId, TransactionInfo info) {
+        for (ServerTabController controller : serverTabs.values()) {
+            if (Objects.equals(controller.getTransactionId(), info.getId())) {
+                controller.setTransactionId(null);
+                log.info("Attaching " + consoleId);
+                try {
+                    controller.attach(consoleId);
+                } catch (Exception e) {
+                    PVIApplication.get().showExceptionDialog("Exception Encountered", "Unable to attach to console " + consoleId, e);
+                }
+
+                return;
+            }
+        }
+
+        log.warn("Received attach for console we aren't waiting for: " + consoleId);
+        PVIClient.get().sendDetachConsole(consoleId);
+    }
+
+    @Override
+    public void receivedDetachConsole(String consoleId, TransactionInfo info) {
+        for (ServerTabController controller : serverTabs.values()) {
+            if (Objects.equals(controller.getConsoleId(), consoleId)) {
+                controller.detach();
+                return;
+            }
+        }
+
+        log.warn("We aren't listening to console " + consoleId);
+    }
+
+    @Override
+    public void receivedConsoleMessage(String consoleId, String value, TransactionInfo info) {
+        for (ServerTabController controller : serverTabs.values()) {
+            if (Objects.equals(controller.getConsoleId(), consoleId)) {
+                Platform.runLater(() -> controller.writeToConsole(value));
+                return;
+            }
+        }
+
+        log.warn("We aren't listening to console " + consoleId + ", sending detach");
+        PVIClient.get().sendDetachConsole(consoleId);
     }
 
     private static final class CoordinatorTreeItem extends TreeItem<String> {
