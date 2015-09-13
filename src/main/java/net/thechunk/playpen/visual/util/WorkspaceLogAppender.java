@@ -75,8 +75,7 @@ public class WorkspaceLogAppender extends AbstractAppender {
     @PluginFactory
     public static WorkspaceLogAppender createAppender(@PluginAttribute("name") String name,
                                                       @PluginElement("Layout") Layout<? extends Serializable> layout,
-                                                      @PluginElement("Filter") final Filter filter,
-                                                      @PluginAttribute("otherAttribute") String otherAttribute) {
+                                                      @PluginElement("Filter") final Filter filter) {
 
         if (name == null) {
             LOGGER.error("No name provided for WorkspaceLogAppender");

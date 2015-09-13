@@ -46,6 +46,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/log4j-provider.properties</exclude>
+                        <exclude>META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat</exclude>
                     </excludes>
                     <archive>
                         <manifest>

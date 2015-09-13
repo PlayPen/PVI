@@ -55,7 +55,8 @@ public class WorkspaceController implements Initializable, PPEventListener {
         });
 
         try {
-            consoleTab = FXMLLoader.load(getClass().getClassLoader().getResource("ui/LogTab.fxml"));
+            URL url = getClass().getClassLoader().getResource("ui/LogTab.fxml");
+            consoleTab = FXMLLoader.load(url);
             consoleTab.setClosable(false);
             tabPane.getTabs().add(consoleTab);
             tabPane.getSelectionModel().select(consoleTab);
