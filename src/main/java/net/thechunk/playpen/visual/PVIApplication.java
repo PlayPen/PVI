@@ -21,29 +21,13 @@ import net.thechunk.playpen.coordinator.VMShutdownThread;
 import net.thechunk.playpen.networking.AbstractTransactionListener;
 import net.thechunk.playpen.networking.TransactionInfo;
 import net.thechunk.playpen.networking.TransactionManager;
-import net.thechunk.playpen.protocol.Protocol;
-import net.thechunk.playpen.utils.JarUtils;
-import net.thechunk.playpen.visual.util.WorkspaceLogAppender;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.Layout;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
-import org.apache.logging.log4j.core.config.AppenderRef;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.ConfigurationSource;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
-import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 @Log4j2
@@ -82,6 +66,8 @@ public class PVIApplication extends Application {
                 quit();
             }
         }
+
+        setUserAgentStylesheet(STYLESHEET_MODENA);
 
         try {
             config = new PropertiesConfiguration(configFile);
@@ -195,7 +181,7 @@ public class PVIApplication extends Application {
                 log.info("Transaction " + info.getId() + " completed.");
                 Platform.runLater(() -> {
                     progress.setProgress(1);
-                    PVIClient.get().getScheduler().schedule(() -> Platform.runLater(stage::close), 1500, TimeUnit.MILLISECONDS);
+                    PVIClient.get().getScheduler().schedule(() -> Platform.runLater(stage::close), 800, TimeUnit.MILLISECONDS);
                 });
             }
 
