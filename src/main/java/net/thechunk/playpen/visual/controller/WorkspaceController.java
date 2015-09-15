@@ -36,6 +36,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
     private TreeItem<String> rootNode = new TreeItem<>("Network");
 
     private Tab consoleTab;
+    private PackagesTabController packagesTab;
 
     private Map<String, CoordinatorTabController> coordinatorTabs = new HashMap<>();
     private Map<String, ServerTabController> serverTabs = new HashMap<>();
@@ -59,6 +60,17 @@ public class WorkspaceController implements Initializable, PPEventListener {
             consoleTab = FXMLLoader.load(url);
             consoleTab.setClosable(false);
             tabPane.getTabs().add(consoleTab);
+
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getClassLoader().getResource("ui/PackagesTab.fxml"));
+            loader.setBuilderFactory(new JavaFXBuilderFactory());
+            Tab tab = loader.load();
+            tab.setClosable(false);
+            tabPane.getTabs().add(tab);
+
+            packagesTab = loader.getController();
+            packagesTab.setTab(tab);
+
             tabPane.getSelectionModel().select(consoleTab);
         } catch (IOException e) {
             PVIApplication.get().showExceptionDialog("Exception Encountered", "Unable to setup workspace", e);
@@ -183,22 +195,6 @@ public class WorkspaceController implements Initializable, PPEventListener {
         }
     }
 
-    @FXML
-    protected void handlePackagesButtonPressed(ActionEvent event) {
-        TransactionInfo info = PVIClient.get().sendRequestPackageList();
-
-        if (info == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Unable to send package list request to network.");
-            alert.showAndWait();
-        }
-        else {
-            PVIApplication.get().showTransactionDialog("Package List", info, null);
-        }
-    }
-
     @Override
     public void receivedListResponse(Commands.C_CoordinatorListResponse response, TransactionInfo info) {
         Platform.runLater(() -> {
@@ -226,6 +222,9 @@ public class WorkspaceController implements Initializable, PPEventListener {
                 }
             }
 
+            rootNode.getChildren().sort((a, b) -> a.getValue().compareTo(b.getValue()));
+            rootNode.setExpanded(true);
+
             Iterator<String> itr = coordinatorTabs.keySet().iterator();
             while (itr.hasNext()) {
                 String uuid = itr.next();
@@ -245,9 +244,6 @@ public class WorkspaceController implements Initializable, PPEventListener {
                     itr.remove();
                 }
             }
-
-            rootNode.getChildren().sort((a, b) -> a.getValue().compareTo(b.getValue()));
-            rootNode.setExpanded(true);
         });
     }
 
@@ -298,7 +294,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
 
     @Override
     public void receivedPackageList(Commands.C_PackageList list, TransactionInfo info) {
-
+        packagesTab.updatePackages(list);
     }
 
     private static final class CoordinatorTreeItem extends TreeItem<String> {
