@@ -131,7 +131,8 @@ public class PVIClient extends APIClient {
 
     @Override
     public boolean processAck(Commands.C_Ack c_ack, TransactionInfo transactionInfo) {
-        return false;
+        log.info("ACK - " + (c_ack.hasResult() ? c_ack.getResult() : "no result"));
+        return true;
     }
 
     public void addEventListener(PPEventListener listener) {
@@ -282,6 +283,32 @@ public class PVIClient extends APIClient {
         }
 
         log.info("Sending C_SEND_INPUT to network coordinator");
+        return TransactionManager.get().send(info.getId(), message, null);
+    }
+
+    public boolean sendDeprovision(String coordId, String serverId, boolean force) {
+        Commands.C_Deprovision deprovision = Commands.C_Deprovision.newBuilder()
+                .setCoordinatorId(coordId)
+                .setServerId(serverId)
+                .setForce(force)
+                .build();
+
+        Commands.BaseCommand command = Commands.BaseCommand.newBuilder()
+                .setType(Commands.BaseCommand.CommandType.C_DEPROVISION)
+                .setCDeprovision(deprovision)
+                .build();
+
+        TransactionInfo info = TransactionManager.get().begin();
+
+        Protocol.Transaction message = TransactionManager.get()
+                .build(info.getId(), Protocol.Transaction.Mode.SINGLE, command);
+        if(message == null) {
+            log.error("Unable to build message for deprovision");
+            TransactionManager.get().cancel(info.getId());
+            return false;
+        }
+
+        log.info("Sending C_DEPROVISION to network coordinator");
         return TransactionManager.get().send(info.getId(), message, null);
     }
 }

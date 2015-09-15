@@ -76,7 +76,12 @@ public class ServerTabController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         propertyColumn.setCellValueFactory(new PropertyValueFactory<PropertyValue, String>("name"));
         valueColumn.setCellValueFactory(new PropertyValueFactory<PropertyValue, String>("value"));
+
         writeToConsole("Click \"Attach\" to attach to this console.");
+
+        consoleArea.textProperty().addListener((observable, oldValue, newValue) -> {
+            consoleArea.setScrollTop(Double.MAX_VALUE);
+        });
     }
 
     public void setServer(Coordinator.LocalCoordinator coordinator, Coordinator.Server server) {
@@ -129,8 +134,7 @@ public class ServerTabController implements Initializable {
     }
 
     public void writeToConsole(String str) {
-        consoleArea.setText(consoleArea.getText() + str + "\n");
-        consoleArea.setScrollTop(Double.MAX_VALUE);
+        consoleArea.appendText(str + "\n");
     }
 
     @FXML
@@ -147,7 +151,7 @@ public class ServerTabController implements Initializable {
             }
             else {
                 transactionId = info.getId();
-                PVIApplication.get().showTransactionDialog("Attach Console", info);
+                PVIApplication.get().showTransactionDialog("Attach Console", info, null);
             }
         }
         else {
@@ -171,6 +175,49 @@ public class ServerTabController implements Initializable {
             log.error("Unable to send input to " + coordinator.getUuid() + " server " + server.getUuid());
             writeToConsole("[[ ERROR SENDING INPUT ]]");
         }
+    }
+
+    @FXML
+    protected void handleDeprovisionButtonPressed(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setHeaderText("Are you sure you want to deprovision " + (server.hasName() ? server.getName() : server.getUuid()) + "?");
+        alert.setContentText("Forcing will cause the server process to immediately exit.");
+
+        ButtonType deprovision = new ButtonType("Deprovision");
+        ButtonType force = new ButtonType("Force");
+        ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(deprovision, force, cancel);
+
+        alert.showAndWait().ifPresent(result -> {
+            if (result == deprovision) {
+                if (PVIClient.get().sendDeprovision(coordinator.getUuid(), server.getUuid(), false)) {
+                    Alert success = new Alert(Alert.AlertType.INFORMATION);
+                    success.setHeaderText(null);
+                    success.setContentText("Sent deprovision of " + (server.hasName() ? server.getName() : server.getUuid()) + " to network.");
+                    success.showAndWait();
+                }
+                else {
+                    Alert err = new Alert(Alert.AlertType.ERROR);
+                    err.setHeaderText(null);
+                    err.setContentText("Unable to send deprovision to network.");
+                    err.showAndWait();
+                }
+            }
+            else if(result == force) {
+                if (PVIClient.get().sendDeprovision(coordinator.getUuid(), server.getUuid(), true)) {
+                    Alert success = new Alert(Alert.AlertType.INFORMATION);
+                    success.setHeaderText(null);
+                    success.setContentText("Sent force deprovision of " + (server.hasName() ? server.getName() : server.getUuid()) + " to network.");
+                    success.showAndWait();
+                }
+                else {
+                    Alert err = new Alert(Alert.AlertType.ERROR);
+                    err.setHeaderText(null);
+                    err.setContentText("Unable to send force deprovision to network.");
+                    err.showAndWait();
+                }
+            }
+        });
     }
 
     public static class PropertyValue {

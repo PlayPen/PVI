@@ -89,25 +89,26 @@ public class CoordinatorTabController implements Initializable {
         alert.setContentText("Shutting down a coordinator will tell it to disconnect from the network and safely " +
                 "shutdown all servers, before stopping itself.");
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            if (PVIClient.get().sendShutdown(coordinator.getUuid())) {
-                alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Success");
-                alert.setHeaderText(null);
-                alert.setContentText("Sent shutdown of " + coordinator.getUuid() + " to network.");
-                alert.showAndWait();
+        alert.showAndWait().ifPresent(result -> {
+            if (result == ButtonType.OK) {
+                if (PVIClient.get().sendShutdown(coordinator.getUuid())) {
+                    Alert info = new Alert(Alert.AlertType.INFORMATION);
+                    info.setTitle("Success");
+                    info.setHeaderText(null);
+                    info.setContentText("Sent shutdown of " + coordinator.getUuid() + " to network.");
+                    info.showAndWait();
 
-                PVIClient.get().getScheduler().schedule(() -> PVIClient.get().sendListRequest(), 5, TimeUnit.SECONDS);
+                    PVIClient.get().getScheduler().schedule(() -> PVIClient.get().sendListRequest(), 5, TimeUnit.SECONDS);
+                }
+                else {
+                    Alert err = new Alert(Alert.AlertType.ERROR);
+                    err.setTitle("Error");
+                    err.setHeaderText(null);
+                    err.setContentText("Unable to send shutdown to network. Check log for details.");
+                    err.showAndWait();
+                }
             }
-            else {
-                alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Unable to send shutdown to network. Check log for details.");
-                alert.showAndWait();
-            }
-        }
+        });
     }
 
     public static class ResourceValue {

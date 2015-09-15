@@ -83,7 +83,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
             alert.showAndWait();
         }
         else {
-            PVIApplication.get().showTransactionDialog("Network Refresh", info);
+            PVIApplication.get().showTransactionDialog("Network Refresh", info, null);
         }
     }
 
@@ -179,7 +179,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
             alert.showAndWait();
         }
         else {
-            PVIApplication.get().showTransactionDialog("Network Refresh", info);
+            PVIApplication.get().showTransactionDialog("Network Refresh", info, null);
         }
     }
 

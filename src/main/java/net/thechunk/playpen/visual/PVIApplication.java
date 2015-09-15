@@ -143,7 +143,7 @@ public class PVIApplication extends Application {
         alert.showAndWait();
     }
 
-    public void showTransactionDialog(String processName, TransactionInfo info) {
+    public void showTransactionDialog(String processName, TransactionInfo info, Runnable complete) {
         if (TransactionManager.get().getInfo(info.getId()) == null) {
             log.warn("Tried to show processing dialog for invalid transaction " + info.getId());
             return;
@@ -181,7 +181,11 @@ public class PVIApplication extends Application {
                 log.info("Transaction " + info.getId() + " completed.");
                 Platform.runLater(() -> {
                     progress.setProgress(1);
-                    PVIClient.get().getScheduler().schedule(() -> Platform.runLater(stage::close), 800, TimeUnit.MILLISECONDS);
+                    PVIClient.get().getScheduler().schedule(() -> Platform.runLater(() -> {
+                        stage.close();
+                        if (complete != null)
+                            complete.run();
+                    }), 800, TimeUnit.MILLISECONDS);
                 });
             }
 
