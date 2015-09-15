@@ -124,7 +124,7 @@ public class PVIClient extends APIClient {
 
     @Override
     public boolean processListResponse(Commands.C_CoordinatorListResponse c_coordinatorListResponse, TransactionInfo transactionInfo) {
-        log.info("Received coordinator list: " + c_coordinatorListResponse.getCoordinatorsList().size() + " local coordinators.");
+        log.info("Received coordinator list: " + c_coordinatorListResponse.getCoordinatorsCount() + " local coordinators.");
         listeners.stream().forEach(listener -> listener.receivedListResponse(c_coordinatorListResponse, transactionInfo));
         return true;
     }
@@ -132,6 +132,13 @@ public class PVIClient extends APIClient {
     @Override
     public boolean processAck(Commands.C_Ack c_ack, TransactionInfo transactionInfo) {
         log.info("ACK - " + (c_ack.hasResult() ? c_ack.getResult() : "no result"));
+        return true;
+    }
+
+    @Override
+    public boolean processPackageList(Commands.C_PackageList message, TransactionInfo info) {
+        log.info("Received package list: " + message.getPackagesCount() + " packages.");
+        listeners.stream().forEach(listener -> listener.receivedPackageList(message, info));
         return true;
     }
 
@@ -180,6 +187,27 @@ public class PVIClient extends APIClient {
         }
 
         log.info("Sending C_GET_COORDINATOR_LIST to network");
+        if (TransactionManager.get().send(info.getId(), message, null))
+            return info;
+        return null;
+    }
+
+    public TransactionInfo sendRequestPackageList() {
+        Commands.BaseCommand command = Commands.BaseCommand.newBuilder()
+                .setType(Commands.BaseCommand.CommandType.C_REQUEST_PACKAGE_LIST)
+                .build();
+
+        TransactionInfo info = TransactionManager.get().begin();
+
+        Protocol.Transaction message = TransactionManager.get()
+                .build(info.getId(), Protocol.Transaction.Mode.CREATE, command);
+        if (message == null) {
+            log.error("Unable to build message for C_REQUEST_PACKAGE_LIST");
+            TransactionManager.get().cancel(info.getId());
+            return null;
+        }
+
+        log.info("Sending C_REQUEST_PACKAGE_LIST to network");
         if (TransactionManager.get().send(info.getId(), message, null))
             return info;
         return null;

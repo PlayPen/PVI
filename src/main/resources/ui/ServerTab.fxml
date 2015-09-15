@@ -82,7 +82,7 @@
                       <Insets fx:id="x2" />
                     </VBox.margin>
                   </TableView>
-                  <FlowPane hgap="10.0" padding="$x2" prefHeight="200.0" prefWidth="200.0" VBox.margin="$x2">
+                  <FlowPane hgap="10.0" padding="$x2" prefHeight="200.0" prefWidth="200.0" vgap="10.0" VBox.margin="$x2">
                     <children>
                       <Button mnemonicParsing="false" onAction="#handleDeprovisionButtonPressed" text="Deprovision" textFill="RED" />
                       <Button mnemonicParsing="false" onAction="#handleFreezeButtonPressed" text="Freeze" textFill="#0029ff" />

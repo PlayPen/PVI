@@ -183,6 +183,22 @@ public class WorkspaceController implements Initializable, PPEventListener {
         }
     }
 
+    @FXML
+    protected void handlePackagesButtonPressed(ActionEvent event) {
+        TransactionInfo info = PVIClient.get().sendRequestPackageList();
+
+        if (info == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Unable to send package list request to network.");
+            alert.showAndWait();
+        }
+        else {
+            PVIApplication.get().showTransactionDialog("Package List", info, null);
+        }
+    }
+
     @Override
     public void receivedListResponse(Commands.C_CoordinatorListResponse response, TransactionInfo info) {
         Platform.runLater(() -> {
@@ -278,6 +294,11 @@ public class WorkspaceController implements Initializable, PPEventListener {
 
         log.warn("We aren't listening to console " + consoleId + ", sending detach");
         PVIClient.get().sendDetachConsole(consoleId);
+    }
+
+    @Override
+    public void receivedPackageList(Commands.C_PackageList list, TransactionInfo info) {
+
     }
 
     private static final class CoordinatorTreeItem extends TreeItem<String> {

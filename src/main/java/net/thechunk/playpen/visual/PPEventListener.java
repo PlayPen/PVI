@@ -8,4 +8,5 @@ public interface PPEventListener {
     void receivedConsoleAttach(String consoleId, TransactionInfo info);
     void receivedDetachConsole(String consoleId, TransactionInfo info);
     void receivedConsoleMessage(String consoleId, String value, TransactionInfo info);
+    void receivedPackageList(Commands.C_PackageList list, TransactionInfo info);
 }
