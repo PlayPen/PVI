@@ -5,9 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Tab;
+import javafx.scene.control.*;
 import lombok.Getter;
 import lombok.Setter;
 import net.thechunk.playpen.networking.TransactionInfo;
@@ -17,11 +15,11 @@ import net.thechunk.playpen.visual.PVIApplication;
 import net.thechunk.playpen.visual.PVIClient;
 
 import java.net.URL;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class PackagesTabController implements Initializable {
     @FXML
-    ListView<String> listView;
+    TreeView<String> packageTree;
 
     @Getter
     @Setter
@@ -33,13 +31,27 @@ public class PackagesTabController implements Initializable {
     }
 
     public void updatePackages(Commands.C_PackageList list) {
-        final ObservableList<String> packages = FXCollections.observableArrayList();
-        for (P3.P3Meta p3 : list.getPackagesList()) {
-            packages.add(p3.getId() + " @ " + p3.getVersion());
-        }
+        Map<String, List<String>> packages = new HashMap<>();
+        list.getPackagesList().forEach(p3 -> {
+            if (packages.containsKey(p3.getId())) {
+                packages.get(p3.getId()).add(p3.getVersion());
+            }
+            else {
+                List<String> versions = new LinkedList<String>();
+                versions.add(p3.getVersion());
+                packages.put(p3.getId(), versions);
+            }
+        });
 
-        packages.sort(String::compareTo);
-        listView.setItems(packages);
+        TreeItem<String> rootNode = new TreeItem<>("Packages");
+        packageTree.setRoot(rootNode);
+        packageTree.setShowRoot(false);
+
+        packages.forEach((name, versions) -> {
+            rootNode.getChildren().add(new PackageTreeItem(name, versions));
+        });
+
+        rootNode.getChildren().sort((a, b) -> a.getValue().compareTo(b.getValue()));
     }
 
     @FXML
@@ -55,6 +67,29 @@ public class PackagesTabController implements Initializable {
         }
         else {
             PVIApplication.get().showTransactionDialog("Package List", info, null);
+        }
+    }
+
+    private static final class PackageTreeItem extends TreeItem<String> {
+        @Getter
+        private String name;
+
+        public PackageTreeItem(String name, List<String> versions) {
+            super(name);
+            this.name = name;
+
+            versions.forEach(v -> this.getChildren().add(new VersionTreeItem(v)));
+            this.getChildren().sort((a, b) -> b.getValue().compareTo(a.getValue()));
+        }
+    }
+
+    private static final class VersionTreeItem extends TreeItem<String> {
+        @Getter
+        private String version;
+
+        public VersionTreeItem(String version) {
+            super(version);
+            this.version = version;
         }
     }
 }

@@ -294,7 +294,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
 
     @Override
     public void receivedPackageList(Commands.C_PackageList list, TransactionInfo info) {
-        packagesTab.updatePackages(list);
+        Platform.runLater(() -> packagesTab.updatePackages(list));
     }
 
     private static final class CoordinatorTreeItem extends TreeItem<String> {
