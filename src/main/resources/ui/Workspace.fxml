@@ -15,7 +15,7 @@
           <children>
             <VBox alignment="TOP_CENTER" prefHeight="673.0" prefWidth="237.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <children>
-                <TreeView fx:id="coordinatorTree" prefHeight="620.0" prefWidth="215.0" />
+                <TreeView fx:id="coordinatorTree" prefHeight="620.0" prefWidth="215.0" VBox.vgrow="ALWAYS" />
                 <FlowPane alignment="CENTER" hgap="10.0" prefHeight="-1.0" prefWidth="-1.0" vgap="10.0">
                   <children>
                     <Button contentDisplay="LEFT" mnemonicParsing="false" onAction="#handleRefreshButtonPressed" text="Refresh" />
