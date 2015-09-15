@@ -220,6 +220,22 @@ public class ServerTabController implements Initializable {
         });
     }
 
+    @FXML
+    protected void handleFreezeButtonPressed(ActionEvent event) {
+        if (PVIClient.get().sendFreezeServer(coordinator.getUuid(), server.getUuid())) {
+            Alert success = new Alert(Alert.AlertType.INFORMATION);
+            success.setHeaderText(null);
+            success.setContentText("Sent freeze of " + (server.hasName() ? server.getName() : server.getUuid()) + " to network.");
+            success.showAndWait();
+        }
+        else {
+            Alert err = new Alert(Alert.AlertType.ERROR);
+            err.setHeaderText(null);
+            err.setContentText("Unable to send freeze to network.");
+            err.showAndWait();
+        }
+    }
+
     public static class PropertyValue {
         private final SimpleStringProperty name;
         private final SimpleStringProperty value;

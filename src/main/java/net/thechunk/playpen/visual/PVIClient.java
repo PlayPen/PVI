@@ -311,4 +311,29 @@ public class PVIClient extends APIClient {
         log.info("Sending C_DEPROVISION to network coordinator");
         return TransactionManager.get().send(info.getId(), message, null);
     }
+
+    public boolean sendFreezeServer(String coordId, String serverId) {
+        Commands.C_FreezeServer freeze = Commands.C_FreezeServer.newBuilder()
+                .setCoordinatorId(coordId)
+                .setServerId(serverId)
+                .build();
+
+        Commands.BaseCommand command = Commands.BaseCommand.newBuilder()
+                .setType(Commands.BaseCommand.CommandType.C_FREEZE_SERVER)
+                .setCFreezeServer(freeze)
+                .build();
+
+        TransactionInfo info = TransactionManager.get().begin();
+
+        Protocol.Transaction message = TransactionManager.get()
+                .build(info.getId(), Protocol.Transaction.Mode.SINGLE, command);
+        if(message == null) {
+            log.error("Unable to build message for C_FREEZE_SERVER");
+            TransactionManager.get().cancel(info.getId());
+            return false;
+        }
+
+        log.info("Sending C_FREEZE_SERVER to network coordinator");
+        return TransactionManager.get().send(info.getId(), message, null);
+    }
 }
