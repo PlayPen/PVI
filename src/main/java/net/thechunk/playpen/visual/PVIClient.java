@@ -8,12 +8,15 @@ import net.thechunk.playpen.coordinator.api.APIClient;
 import net.thechunk.playpen.networking.TransactionInfo;
 import net.thechunk.playpen.networking.TransactionManager;
 import net.thechunk.playpen.protocol.Commands;
+import net.thechunk.playpen.protocol.Coordinator;
+import net.thechunk.playpen.protocol.P3;
 import net.thechunk.playpen.protocol.Protocol;
 import net.thechunk.playpen.visual.controller.ServerTabController;
 
 import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -94,7 +97,9 @@ public class PVIClient extends APIClient {
 
     @Override
     public boolean processProvisionResponse(Commands.C_ProvisionResponse c_provisionResponse, TransactionInfo transactionInfo) {
-        return false;
+        log.info("Received provision response: success = " + c_provisionResponse.getOk());
+        listeners.stream().forEach(listener -> listener.receivedProvisionResponse(c_provisionResponse, transactionInfo));
+        return true;
     }
 
     @Override
@@ -363,5 +368,47 @@ public class PVIClient extends APIClient {
 
         log.info("Sending C_FREEZE_SERVER to network coordinator");
         return TransactionManager.get().send(info.getId(), message, null);
+    }
+
+    public TransactionInfo sendProvision(String id, String version, String coordinator, String serverName, Map<String, String> properties) {
+        P3.P3Meta meta = P3.P3Meta.newBuilder()
+                .setId(id)
+                .setVersion(version)
+                .build();
+
+        Commands.C_Provision.Builder provisionBuilder = Commands.C_Provision.newBuilder()
+                .setP3(meta);
+
+        if(coordinator != null) {
+            provisionBuilder.setCoordinator(coordinator);
+        }
+
+        if(serverName != null) {
+            provisionBuilder.setServerName(serverName);
+        }
+
+        for(Map.Entry<String, String> prop : properties.entrySet()) {
+            provisionBuilder.addProperties(Coordinator.Property.newBuilder().setName(prop.getKey()).setValue(prop.getValue()).build());
+        }
+
+        Commands.BaseCommand command = Commands.BaseCommand.newBuilder()
+                .setType(Commands.BaseCommand.CommandType.C_PROVISION)
+                .setCProvision(provisionBuilder.build())
+                .build();
+
+        TransactionInfo info = TransactionManager.get().begin();
+
+        Protocol.Transaction message = TransactionManager.get()
+                .build(info.getId(), Protocol.Transaction.Mode.CREATE, command);
+        if(message == null) {
+            log.error("Unable to build message for provision");
+            TransactionManager.get().cancel(info.getId());
+            return null;
+        }
+
+        log.info("Sending C_PROVISION to network coordinator");
+        if (TransactionManager.get().send(info.getId(), message, null))
+            return info;
+        return null;
     }
 }

@@ -297,6 +297,42 @@ public class WorkspaceController implements Initializable, PPEventListener {
         Platform.runLater(() -> packagesTab.updatePackages(list));
     }
 
+    @Override
+    public void receivedProvisionResponse(Commands.C_ProvisionResponse response, TransactionInfo info) {
+        if (response.getOk()) {
+            // uuid -> name resolution for coordinator
+            String coord = response.getCoordinatorId();
+            for (TreeItem<String> item : coordinatorTree.getRoot().getChildren()) {
+                if (item instanceof CoordinatorTreeItem) {
+                    CoordinatorTreeItem coordItem = (CoordinatorTreeItem) item;
+                    if (coordItem.getCoordinator().getUuid().equals(response.getCoordinatorId())) {
+                        coord = coordItem.getCoordinator().hasName() ? coordItem.getCoordinator().getName() : coord;
+                        break;
+                    }
+                }
+            }
+
+            final String c = coord;
+
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Server Provisioned");
+                alert.setHeaderText(null);
+                alert.setContentText("Successfully provisioned server with uuid " + response.getServerId() + " on coordinator " + c);
+                alert.showAndWait();
+            });
+        }
+        else {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Unable to provision server.");
+                alert.setContentText("This could be for numerous reasons. Check the NC console for more information.");
+                alert.showAndWait();
+            });
+        }
+    }
+
     private static final class CoordinatorTreeItem extends TreeItem<String> {
         @Getter
         private Coordinator.LocalCoordinator coordinator;

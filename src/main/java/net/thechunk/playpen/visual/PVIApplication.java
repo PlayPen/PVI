@@ -3,12 +3,10 @@ package net.thechunk.playpen.visual;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
@@ -21,6 +19,7 @@ import net.thechunk.playpen.coordinator.VMShutdownThread;
 import net.thechunk.playpen.networking.AbstractTransactionListener;
 import net.thechunk.playpen.networking.TransactionInfo;
 import net.thechunk.playpen.networking.TransactionManager;
+import net.thechunk.playpen.visual.controller.ProvisionDialogController;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
@@ -28,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 @Log4j2
@@ -203,6 +203,37 @@ public class PVIApplication extends Application {
             }
         });
 
+        stage.showAndWait();
+    }
+
+    public void showProvisionDialog(String packageName, String packageVersion) {
+        Parent root = null;
+        ProvisionDialogController controller = null;
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getClassLoader().getResource("ui/ProvisionDialog.fxml"));
+            loader.setBuilderFactory(new JavaFXBuilderFactory());
+            root = loader.load();
+
+            controller = loader.getController();
+        } catch (IOException e) {
+            PVIApplication.get().showExceptionDialog("Exception Encountered", "Unable to setup workspace", e);
+            PVIApplication.get().quit();
+            return;
+        }
+
+        Scene scene = new Scene(root);
+        Stage stage = new Stage(StageStyle.DECORATED);
+        controller.setStage(stage);
+
+        stage.setScene(scene);
+        stage.setTitle("Provision");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setResizable(true);
+        stage.setX(primaryStage.getX() + primaryStage.getWidth() / 2d);
+        stage.setY(primaryStage.getY() + primaryStage.getHeight() / 2d);
+
+        controller.setPackage(packageName, packageVersion);
         stage.showAndWait();
     }
 }
