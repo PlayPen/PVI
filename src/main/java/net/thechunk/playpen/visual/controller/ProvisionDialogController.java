@@ -34,6 +34,12 @@ public class ProvisionDialogController implements Initializable {
     TextField versionField;
 
     @FXML
+    TextField serverNameField;
+
+    @FXML
+    TextField coordinatorField;
+
+    @FXML
     TableView<PropertyValue> propertyTable;
 
     @FXML
@@ -97,6 +103,14 @@ public class ProvisionDialogController implements Initializable {
         String version = versionField.getText();
         Map<String, String> properties = new HashMap<>();
 
+        String serverName = serverNameField.getText().trim();
+        if (serverName.isEmpty())
+            serverName = null;
+
+        String coordinatorName = coordinatorField.getText().trim();
+        if (coordinatorName.isEmpty())
+            coordinatorName = null;
+
         for (PropertyValue prop : propertyTable.getItems()) {
             if (prop.getName().trim().isEmpty() || prop.getValue().trim().isEmpty())
                 continue;
@@ -109,8 +123,7 @@ public class ProvisionDialogController implements Initializable {
             log.info("  " + prop.getKey() + " = " + prop.getValue());
         }
 
-        // TODO: Coordinator and server name
-        TransactionInfo info = PVIClient.get().sendProvision(id, version, null, null, properties);
+        TransactionInfo info = PVIClient.get().sendProvision(id, version, coordinatorName, serverName, properties);
         if (info == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");

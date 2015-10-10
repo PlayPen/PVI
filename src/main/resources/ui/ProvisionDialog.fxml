@@ -8,7 +8,7 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="400.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.thechunk.playpen.visual.controller.ProvisionDialogController">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="400.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.thechunk.playpen.visual.controller.ProvisionDialogController">
   <children>
     <VBox prefHeight="400.0" prefWidth="600.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
@@ -23,12 +23,18 @@
             <Label text="Version" GridPane.columnIndex="0" GridPane.rowIndex="1" />
             <TextField fx:id="packageField" editable="false" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
             <TextField fx:id="versionField" editable="false" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="Server Name" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <TextField fx:id="serverNameField" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="Coordinator" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+            <TextField fx:id="coordinatorField" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
           </children>
           <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="289.0" minWidth="10.0" prefWidth="110.0" />
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="521.0" minWidth="10.0" prefWidth="270.0" />
           </columnConstraints>
           <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           </rowConstraints>
@@ -47,7 +53,7 @@
         </HBox>
         <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0">
           <children>
-            <Text fill="GREY" strokeType="OUTSIDE" strokeWidth="0.0" text="Empty properties will be removed" />
+            <Text fill="GREY" strokeType="OUTSIDE" strokeWidth="0.0" text="Empty properties will be removed." />
           </children>
         </HBox>
         <HBox alignment="CENTER_RIGHT" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
