@@ -411,4 +411,28 @@ public class PVIClient extends APIClient {
             return info;
         return null;
     }
+
+    public boolean sendPromote(String id, String version) {
+        Commands.C_Promote promote = Commands.C_Promote.newBuilder()
+                .setP3(P3.P3Meta.newBuilder().setId(id).setVersion(version).build())
+                .build();
+
+        Commands.BaseCommand command = Commands.BaseCommand.newBuilder()
+                .setType(Commands.BaseCommand.CommandType.C_PROMOTE)
+                .setCPromote(promote)
+                .build();
+
+        TransactionInfo info = TransactionManager.get().begin();
+
+        Protocol.Transaction message = TransactionManager.get()
+                .build(info.getId(), Protocol.Transaction.Mode.SINGLE, command);
+        if(message == null) {
+            log.error("Unable to build message for promote");
+            TransactionManager.get().cancel(info.getId());
+            return false;
+        }
+
+        log.info("Sending C_PROMOTE to network coordinator");
+        return TransactionManager.get().send(info.getId(), message, null);
+    }
 }

@@ -120,6 +120,50 @@ public class PackagesTabController implements Initializable {
         PVIApplication.get().showProvisionDialog(version.getName(), version.getVersion());
     }
 
+    @FXML
+    protected void handlePromoteButtonPressed(ActionEvent event) {
+        TreeItem<String> selectedItem = packageTree.getSelectionModel().getSelectedItem();
+        if (selectedItem == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("You must select a package to promote!");
+            alert.showAndWait();
+            return;
+        }
+
+        if (!(selectedItem instanceof VersionTreeItem)) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("You must select a version to promote!");
+            alert.showAndWait();
+            return;
+        }
+
+        VersionTreeItem item = (VersionTreeItem) selectedItem;
+
+        if (PVIClient.get().sendPromote(item.getVersion().getName(), item.getVersion().getVersion())) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Promotion");
+            alert.setHeaderText(null);
+            alert.setContentText("Sent promotion of " + item.getVersion().getName() + " at " + item.getVersion().getVersion() + " to network.");
+            alert.showAndWait()
+                    .map((r) -> {
+                        handleRefreshButtonPressed(null);
+                        return (Object)null;
+                    });
+        }
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Unable to send promotion to network.");
+            alert.showAndWait();
+            return;
+        }
+    }
+
     @Data()
     private static final class PackageVersion {
         private String name;
