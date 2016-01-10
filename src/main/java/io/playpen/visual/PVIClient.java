@@ -1,25 +1,21 @@
-package net.thechunk.playpen.visual;
+package io.playpen.visual;
 
+import io.playpen.core.coordinator.PlayPen;
+import io.playpen.core.coordinator.api.APIClient;
+import io.playpen.core.networking.TransactionInfo;
+import io.playpen.core.networking.TransactionManager;
+import io.playpen.core.protocol.Commands;
+import io.playpen.core.protocol.Coordinator;
+import io.playpen.core.protocol.P3;
+import io.playpen.core.protocol.Protocol;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import lombok.extern.log4j.Log4j2;
-import net.thechunk.playpen.coordinator.PlayPen;
-import net.thechunk.playpen.coordinator.api.APIClient;
-import net.thechunk.playpen.networking.TransactionInfo;
-import net.thechunk.playpen.networking.TransactionManager;
-import net.thechunk.playpen.protocol.Commands;
-import net.thechunk.playpen.protocol.Coordinator;
-import net.thechunk.playpen.protocol.P3;
-import net.thechunk.playpen.protocol.Protocol;
-import net.thechunk.playpen.visual.controller.ServerTabController;
 
 import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 @Log4j2
 public class PVIClient extends APIClient {

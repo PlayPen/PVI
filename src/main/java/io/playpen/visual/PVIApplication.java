@@ -1,5 +1,10 @@
-package net.thechunk.playpen.visual;
+package io.playpen.visual;
 
+import io.playpen.core.coordinator.VMShutdownThread;
+import io.playpen.core.networking.AbstractTransactionListener;
+import io.playpen.core.networking.TransactionInfo;
+import io.playpen.core.networking.TransactionManager;
+import io.playpen.visual.controller.ProvisionDialogController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -18,11 +23,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
-import net.thechunk.playpen.coordinator.VMShutdownThread;
-import net.thechunk.playpen.networking.AbstractTransactionListener;
-import net.thechunk.playpen.networking.TransactionInfo;
-import net.thechunk.playpen.networking.TransactionManager;
-import net.thechunk.playpen.visual.controller.ProvisionDialogController;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 

@@ -1,8 +1,8 @@
-package net.thechunk.playpen.visual.util;
+package io.playpen.visual.util;
 
+import io.playpen.visual.controller.LogTabController;
 import javafx.application.Platform;
 import lombok.Setter;
-import net.thechunk.playpen.visual.controller.LogTabController;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;

@@ -1,5 +1,7 @@
-package net.thechunk.playpen.visual.controller;
+package io.playpen.visual.controller;
 
+import io.playpen.visual.PVIApplication;
+import io.playpen.visual.PVIClient;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -10,11 +12,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import lombok.extern.log4j.Log4j2;
-import net.thechunk.playpen.networking.TransactionInfo;
-import net.thechunk.playpen.protocol.Commands;
-import net.thechunk.playpen.visual.PPEventListener;
-import net.thechunk.playpen.visual.PVIApplication;
-import net.thechunk.playpen.visual.PVIClient;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.Level;

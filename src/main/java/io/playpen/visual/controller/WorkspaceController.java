@@ -1,25 +1,21 @@
-package net.thechunk.playpen.visual.controller;
+package io.playpen.visual.controller;
 
+import io.playpen.core.networking.TransactionInfo;
+import io.playpen.core.protocol.Commands;
+import io.playpen.core.protocol.Coordinator;
+import io.playpen.visual.PPEventListener;
+import io.playpen.visual.PVIApplication;
+import io.playpen.visual.PVIClient;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.fxml.JavaFXBuilderFactory;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-import net.thechunk.playpen.networking.TransactionInfo;
-import net.thechunk.playpen.protocol.Commands;
-import net.thechunk.playpen.protocol.Coordinator;
-import net.thechunk.playpen.visual.PPEventListener;
-import net.thechunk.playpen.visual.PVIApplication;
-import net.thechunk.playpen.visual.PVIClient;
 
 import java.io.IOException;
 import java.net.URL;

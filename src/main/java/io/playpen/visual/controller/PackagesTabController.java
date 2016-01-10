@@ -1,5 +1,9 @@
-package net.thechunk.playpen.visual.controller;
+package io.playpen.visual.controller;
 
+import io.playpen.core.networking.TransactionInfo;
+import io.playpen.core.protocol.Commands;
+import io.playpen.visual.PVIApplication;
+import io.playpen.visual.PVIClient;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -10,10 +14,6 @@ import javafx.scene.control.TreeView;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import net.thechunk.playpen.networking.TransactionInfo;
-import net.thechunk.playpen.protocol.Commands;
-import net.thechunk.playpen.visual.PVIApplication;
-import net.thechunk.playpen.visual.PVIClient;
 
 import java.net.URL;
 import java.util.*;

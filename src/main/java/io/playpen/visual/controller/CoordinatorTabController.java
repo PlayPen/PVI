@@ -1,5 +1,7 @@
-package net.thechunk.playpen.visual.controller;
+package io.playpen.visual.controller;
 
+import io.playpen.core.protocol.Coordinator;
+import io.playpen.visual.PVIClient;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -10,16 +12,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import net.thechunk.playpen.networking.TransactionInfo;
-import net.thechunk.playpen.protocol.Coordinator;
-import net.thechunk.playpen.visual.PVIApplication;
-import net.thechunk.playpen.visual.PVIClient;
 
 import java.net.URL;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 

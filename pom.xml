@@ -51,7 +51,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>net.thechunk.playpen.visual.PVIApplication</mainClass>
+                            <mainClass>io.playpen.visual.PVIApplication</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -67,7 +67,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>net.thechunk</groupId>
+            <groupId>io.playpen</groupId>
             <artifactId>PlayPen</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>

@@ -9,7 +9,7 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<Tab text="Log" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="net.thechunk.playpen.visual.controller.ServerTabController">
+<Tab text="Log" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="io.playpen.visual.controller.ServerTabController">
   <content>
     <AnchorPane id="Content" minHeight="300.0" minWidth="300.0" prefHeight="500.0" prefWidth="800.0">
       <SplitPane dividerPositions="0.6879699248120301" focusTraversable="true" prefHeight="500.0" prefWidth="800.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="-1.0">

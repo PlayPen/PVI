@@ -1,7 +1,7 @@
-package net.thechunk.playpen.visual;
+package io.playpen.visual;
 
-import net.thechunk.playpen.networking.TransactionInfo;
-import net.thechunk.playpen.protocol.Commands;
+import io.playpen.core.networking.TransactionInfo;
+import io.playpen.core.protocol.Commands;
 
 public interface PPEventListener {
     void receivedListResponse(Commands.C_CoordinatorListResponse response, TransactionInfo info);

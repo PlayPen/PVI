@@ -1,11 +1,9 @@
-package net.thechunk.playpen.visual.controller;
+package io.playpen.visual.controller;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import io.playpen.visual.util.WorkspaceLogAppender;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextArea;
-import net.thechunk.playpen.visual.util.WorkspaceLogAppender;
 
 import java.net.URL;
 import java.util.ResourceBundle;
