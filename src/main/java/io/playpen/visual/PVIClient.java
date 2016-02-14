@@ -119,7 +119,10 @@ public class PVIClient extends APIClient {
     @Override
     public boolean processConsoleAttached(Commands.C_ConsoleAttached c_consoleAttached, TransactionInfo transactionInfo) {
         log.info("Received console attach: " + c_consoleAttached.getConsoleId());
-        listeners.stream().forEach(listener -> listener.receivedConsoleAttach(c_consoleAttached.getConsoleId(), transactionInfo));
+        if (c_consoleAttached.getOk())
+            listeners.stream().forEach(listener -> listener.receivedConsoleAttach(c_consoleAttached.getConsoleId(), transactionInfo));
+        else
+            listeners.stream().forEach(listener -> listener.receivedConsoleAttachFail(transactionInfo));
         return true;
     }
 

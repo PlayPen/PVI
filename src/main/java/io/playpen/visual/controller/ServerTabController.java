@@ -119,6 +119,19 @@ public class ServerTabController implements Initializable {
         });
     }
 
+    public void failAttach() {
+        this.consoleId = null;
+
+        Platform.runLater(() -> {
+            inputField.setDisable(true);
+            sendButton.setDisable(true);
+            attachButton.setText("Attach");
+            attachButton.setDisable(false);
+
+            writeToConsole("Failed to attach to console");
+        });
+    }
+
     // Doesn't actually detach, just does ui and id stuff
     public void detach() {
         this.consoleId = null;

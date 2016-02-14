@@ -264,6 +264,18 @@ public class WorkspaceController implements Initializable, PPEventListener {
     }
 
     @Override
+    public void receivedConsoleAttachFail(TransactionInfo info) {
+        for (ServerTabController controller : serverTabs.values()) {
+            if (Objects.equals(controller.getTransactionId(), info.getId())) {
+                controller.setTransactionId(null);
+                log.info("Attach failed for " + controller.getServer().getName());
+                controller.failAttach();
+                return;
+            }
+        }
+    }
+
+    @Override
     public void receivedDetachConsole(String consoleId, TransactionInfo info) {
         for (ServerTabController controller : serverTabs.values()) {
             if (Objects.equals(controller.getConsoleId(), consoleId)) {
