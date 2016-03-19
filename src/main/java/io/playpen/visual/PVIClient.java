@@ -146,6 +146,13 @@ public class PVIClient extends APIClient {
         return true;
     }
 
+    @Override
+    public boolean processAccessDenied(Commands.C_AccessDenied c_accessDenied, TransactionInfo transactionInfo) {
+        log.info("Received access denied for transaction " + c_accessDenied.getTid() + ": " + c_accessDenied.getResult());
+        listeners.stream().forEach(listener -> listener.receivedAccessDenied(c_accessDenied, transactionInfo));
+        return true;
+    }
+
     public void addEventListener(PPEventListener listener) {
         listeners.add(listener);
     }

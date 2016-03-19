@@ -1,6 +1,7 @@
 package io.playpen.visual.controller;
 
 import io.playpen.core.networking.TransactionInfo;
+import io.playpen.core.networking.TransactionManager;
 import io.playpen.core.protocol.Commands;
 import io.playpen.core.protocol.Coordinator;
 import io.playpen.visual.PPEventListener;
@@ -369,6 +370,14 @@ public class WorkspaceController implements Initializable, PPEventListener {
                 alert.showAndWait();
             });
         }
+    }
+
+    @Override
+    public void receivedAccessDenied(Commands.C_AccessDenied message, TransactionInfo info) {
+        TransactionManager.get().cancel(message.getTid(), true);
+        Platform.runLater(() -> PVIApplication.get().showExceptionDialog("Access Denied",
+                "Access was denied by the network for an operation",
+                new Exception(message.getResult())));
     }
 
     private static final class CoordinatorTreeItem extends TreeItem<String> {

@@ -146,7 +146,7 @@ public class PVIApplication extends Application {
     }
 
     public void showTransactionDialog(String processName, TransactionInfo info, Runnable complete) {
-        if (TransactionManager.get().getInfo(info.getId()) == null) {
+        if (TransactionManager.get().getTransaction(info.getId()) == null) {
             log.warn("Tried to show processing dialog for invalid transaction " + info.getId());
             return;
         }
