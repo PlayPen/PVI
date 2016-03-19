@@ -7,6 +7,8 @@ import io.playpen.visual.PPEventListener;
 import io.playpen.visual.PVIApplication;
 import io.playpen.visual.PVIClient;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,6 +30,9 @@ public class WorkspaceController implements Initializable, PPEventListener {
 
     @FXML
     TreeView<String> coordinatorTree;
+
+    @FXML
+    TextField searchField;
 
     private TreeItem<String> rootNode = new TreeItem<>("Network");
 
@@ -68,6 +73,31 @@ public class WorkspaceController implements Initializable, PPEventListener {
             packagesTab.setTab(tab);
 
             tabPane.getSelectionModel().select(consoleTab);
+
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                coordinatorTree.getSelectionModel().clearSelection();
+                if (newValue == null || newValue.trim().isEmpty()) {
+                    for (TreeItem<String> node : rootNode.getChildren())
+                    {
+                        node.setExpanded(false);
+                    }
+                }
+                else {
+                    String searchStr = newValue.trim().toLowerCase();
+                    for (TreeItem<String> node : rootNode.getChildren())
+                    {
+                        node.setExpanded(false);
+                        for (TreeItem<String> child : node.getChildren())
+                        {
+                            if (child.getValue().toLowerCase().contains(searchStr))
+                            {
+                                node.setExpanded(true);
+                                coordinatorTree.getSelectionModel().select(child);
+                            }
+                        }
+                    }
+                }
+            });
         } catch (IOException e) {
             PVIApplication.get().showExceptionDialog("Exception Encountered", "Unable to setup workspace", e);
             PVIApplication.get().quit();
