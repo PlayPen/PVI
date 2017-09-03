@@ -7,6 +7,7 @@ import io.playpen.core.networking.TransactionManager;
 import io.playpen.visual.controller.ProvisionDialogController;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Parent;
@@ -35,6 +36,16 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public class PVIApplication extends Application {
     private static PVIApplication instance = null;
+    @Getter
+    boolean closing = false;
+    private Stage primaryStage;
+    @Getter
+    private PropertiesConfiguration config;
+
+    public PVIApplication() {
+        super();
+        instance = this;
+    }
 
     public static void main(String[] args) {
         launch(args);
@@ -42,19 +53,6 @@ public class PVIApplication extends Application {
 
     public static PVIApplication get() {
         return instance;
-    }
-
-    private Stage primaryStage;
-
-    @Getter
-    private PropertiesConfiguration config;
-
-    @Getter
-    boolean closing = false;
-
-    public PVIApplication() {
-        super();
-        instance = this;
     }
 
     @Override
@@ -164,7 +162,7 @@ public class PVIApplication extends Application {
         stage.setScene(scene);
         stage.setTitle("Waiting for Process");
         stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setOnCloseRequest(event -> event.consume());
+        stage.setOnCloseRequest(Event::consume);
         stage.setResizable(false);
         stage.setX(primaryStage.getX() + primaryStage.getWidth() / 2d);
         stage.setY(primaryStage.getY() + primaryStage.getHeight() / 2d);
@@ -208,8 +206,8 @@ public class PVIApplication extends Application {
     }
 
     public void showProvisionDialog(String packageName, String packageVersion) {
-        Parent root = null;
-        ProvisionDialogController controller = null;
+        Parent root;
+        ProvisionDialogController controller;
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getClassLoader().getResource("ui/ProvisionDialog.fxml"));

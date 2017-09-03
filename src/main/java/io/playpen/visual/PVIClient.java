@@ -19,16 +19,11 @@ import java.util.Map;
 
 @Log4j2
 public class PVIClient extends APIClient {
-    public static PVIClient get() {
-        return (PVIClient) PlayPen.get();
-    }
-
     private String clientName;
     private String clientUUID;
     private String clientKey;
     private InetAddress networkIp;
     private int networkPort;
-
     private List<PPEventListener> listeners = new LinkedList<>();
 
     public PVIClient(String name, String uuid, String key, InetAddress ip, int port) {
@@ -39,6 +34,10 @@ public class PVIClient extends APIClient {
         clientKey = key;
         networkIp = ip;
         networkPort = port;
+    }
+
+    public static PVIClient get() {
+        return (PVIClient) PlayPen.get();
     }
 
     @Override
@@ -85,8 +84,7 @@ public class PVIClient extends APIClient {
             });
 
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -94,7 +92,7 @@ public class PVIClient extends APIClient {
     @Override
     public boolean processProvisionResponse(Commands.C_ProvisionResponse c_provisionResponse, TransactionInfo transactionInfo) {
         log.info("Received provision response: success = " + c_provisionResponse.getOk());
-        listeners.stream().forEach(listener -> listener.receivedProvisionResponse(c_provisionResponse, transactionInfo));
+        listeners.forEach(listener -> listener.receivedProvisionResponse(c_provisionResponse, transactionInfo));
         return true;
     }
 
@@ -105,14 +103,14 @@ public class PVIClient extends APIClient {
 
     @Override
     public boolean processConsoleMessage(Commands.C_ConsoleMessage c_consoleMessage, TransactionInfo transactionInfo) {
-        listeners.stream().forEach(listener -> listener.receivedConsoleMessage(c_consoleMessage.getConsoleId(), c_consoleMessage.getValue(), transactionInfo));
+        listeners.forEach(listener -> listener.receivedConsoleMessage(c_consoleMessage.getConsoleId(), c_consoleMessage.getValue(), transactionInfo));
         return true;
     }
 
     @Override
     public boolean processDetachConsole(Commands.C_ConsoleDetached c_consoleDetached, TransactionInfo transactionInfo) {
         log.info("Received console detach: " + c_consoleDetached.getConsoleId());
-        listeners.stream().forEach(listener -> listener.receivedDetachConsole(c_consoleDetached.getConsoleId(), transactionInfo));
+        listeners.forEach(listener -> listener.receivedDetachConsole(c_consoleDetached.getConsoleId(), transactionInfo));
         return true;
     }
 
@@ -120,16 +118,16 @@ public class PVIClient extends APIClient {
     public boolean processConsoleAttached(Commands.C_ConsoleAttached c_consoleAttached, TransactionInfo transactionInfo) {
         log.info("Received console attach: " + c_consoleAttached.getConsoleId());
         if (c_consoleAttached.getOk())
-            listeners.stream().forEach(listener -> listener.receivedConsoleAttach(c_consoleAttached.getConsoleId(), transactionInfo));
+            listeners.forEach(listener -> listener.receivedConsoleAttach(c_consoleAttached.getConsoleId(), transactionInfo));
         else
-            listeners.stream().forEach(listener -> listener.receivedConsoleAttachFail(transactionInfo));
+            listeners.forEach(listener -> listener.receivedConsoleAttachFail(transactionInfo));
         return true;
     }
 
     @Override
     public boolean processListResponse(Commands.C_CoordinatorListResponse c_coordinatorListResponse, TransactionInfo transactionInfo) {
         log.info("Received coordinator list: " + c_coordinatorListResponse.getCoordinatorsCount() + " local coordinators.");
-        listeners.stream().forEach(listener -> listener.receivedListResponse(c_coordinatorListResponse, transactionInfo));
+        listeners.forEach(listener -> listener.receivedListResponse(c_coordinatorListResponse, transactionInfo));
         return true;
     }
 
@@ -142,14 +140,14 @@ public class PVIClient extends APIClient {
     @Override
     public boolean processPackageList(Commands.C_PackageList message, TransactionInfo info) {
         log.info("Received package list: " + message.getPackagesCount() + " packages.");
-        listeners.stream().forEach(listener -> listener.receivedPackageList(message, info));
+        listeners.forEach(listener -> listener.receivedPackageList(message, info));
         return true;
     }
 
     @Override
     public boolean processAccessDenied(Commands.C_AccessDenied c_accessDenied, TransactionInfo transactionInfo) {
         log.info("Received access denied for transaction " + c_accessDenied.getTid() + ": " + c_accessDenied.getResult());
-        listeners.stream().forEach(listener -> listener.receivedAccessDenied(c_accessDenied, transactionInfo));
+        listeners.forEach(listener -> listener.receivedAccessDenied(c_accessDenied, transactionInfo));
         return true;
     }
 
@@ -263,19 +261,19 @@ public class PVIClient extends APIClient {
 
         Protocol.Transaction message = TransactionManager.get()
                 .build(info.getId(), Protocol.Transaction.Mode.CREATE, command);
-        if(message == null) {
+        if (message == null) {
             log.error("Unable to build message for C_ATTACH_CONSOLE");
             TransactionManager.get().cancel(info.getId());
             return null;
         }
 
         log.info("Sending C_ATTACH_CONSOLE to network coordinator");
-        if(TransactionManager.get().send(info.getId(), message, null))
+        if (TransactionManager.get().send(info.getId(), message, null))
             return info;
         return null;
     }
 
-    public boolean sendDetachConsole(String consoleId) {
+    public void sendDetachConsole(String consoleId) {
         Commands.C_DetachConsole.Builder detach = Commands.C_DetachConsole.newBuilder();
         if (consoleId != null)
             detach.setConsoleId(consoleId);
@@ -289,14 +287,14 @@ public class PVIClient extends APIClient {
 
         Protocol.Transaction message = TransactionManager.get()
                 .build(info.getId(), Protocol.Transaction.Mode.SINGLE, command);
-        if(message == null) {
+        if (message == null) {
             log.error("Unable to build message for C_DETACH_CONSOLE");
             TransactionManager.get().cancel(info.getId());
-            return false;
+            return;
         }
 
         log.info("Sending C_DETACH_CONSOLE to network coordinator");
-        return TransactionManager.get().send(info.getId(), message, null);
+        TransactionManager.get().send(info.getId(), message, null);
     }
 
     public boolean sendInput(String coordId, String serverId, String input) {
@@ -315,7 +313,7 @@ public class PVIClient extends APIClient {
 
         Protocol.Transaction message = TransactionManager.get()
                 .build(info.getId(), Protocol.Transaction.Mode.SINGLE, command);
-        if(message == null) {
+        if (message == null) {
             log.error("Unable to build message for send input");
             TransactionManager.get().cancel(info.getId());
             return false;
@@ -341,7 +339,7 @@ public class PVIClient extends APIClient {
 
         Protocol.Transaction message = TransactionManager.get()
                 .build(info.getId(), Protocol.Transaction.Mode.SINGLE, command);
-        if(message == null) {
+        if (message == null) {
             log.error("Unable to build message for deprovision");
             TransactionManager.get().cancel(info.getId());
             return false;
@@ -366,7 +364,7 @@ public class PVIClient extends APIClient {
 
         Protocol.Transaction message = TransactionManager.get()
                 .build(info.getId(), Protocol.Transaction.Mode.SINGLE, command);
-        if(message == null) {
+        if (message == null) {
             log.error("Unable to build message for C_FREEZE_SERVER");
             TransactionManager.get().cancel(info.getId());
             return false;
@@ -385,15 +383,15 @@ public class PVIClient extends APIClient {
         Commands.C_Provision.Builder provisionBuilder = Commands.C_Provision.newBuilder()
                 .setP3(meta);
 
-        if(coordinator != null) {
+        if (coordinator != null) {
             provisionBuilder.setCoordinator(coordinator);
         }
 
-        if(serverName != null) {
+        if (serverName != null) {
             provisionBuilder.setServerName(serverName);
         }
 
-        for(Map.Entry<String, String> prop : properties.entrySet()) {
+        for (Map.Entry<String, String> prop : properties.entrySet()) {
             provisionBuilder.addProperties(Coordinator.Property.newBuilder().setName(prop.getKey()).setValue(prop.getValue()).build());
         }
 
@@ -406,7 +404,7 @@ public class PVIClient extends APIClient {
 
         Protocol.Transaction message = TransactionManager.get()
                 .build(info.getId(), Protocol.Transaction.Mode.CREATE, command);
-        if(message == null) {
+        if (message == null) {
             log.error("Unable to build message for provision");
             TransactionManager.get().cancel(info.getId());
             return null;
@@ -432,7 +430,7 @@ public class PVIClient extends APIClient {
 
         Protocol.Transaction message = TransactionManager.get()
                 .build(info.getId(), Protocol.Transaction.Mode.SINGLE, command);
-        if(message == null) {
+        if (message == null) {
             log.error("Unable to build message for promote");
             TransactionManager.get().cancel(info.getId());
             return false;
