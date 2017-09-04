@@ -79,6 +79,7 @@ public class UploadPackageTab implements Initializable {
 
                 updateText.setText(c_ack.getResult());
                 if (latch.getCount() <= 0) {
+                    uploading = false;
                     PVIClient.get().setAwaitingAckResponse(false);
                 }
             }
@@ -172,9 +173,12 @@ public class UploadPackageTab implements Initializable {
 
         packagesTree.getRoot().getChildren().remove(selected);
         PVIClient.get().setAwaitingAckResponse(true);
+        uploading = true;
         updateText.setText("Sending package " + p3Package.getId() + " (" + p3Package.getVersion() + ") to network...");
         if (!PVIClient.get().sendPackage(p3Package)) {
             updateText.setText("Failed to upload package.");
+            uploading = false;
+            PVIClient.get().setAwaitingAckResponse(false);
             return;
         }
         updateText.setText("Sent package, waiting for Ack...");
@@ -199,6 +203,7 @@ public class UploadPackageTab implements Initializable {
 
         int count = 0;
         PVIClient.get().setAwaitingAckResponse(true);
+        uploading = true;
         packagesTree.getRoot().getChildren().clear();
         for (P3Package p3Package : packageMap.values()) {
             if (!PVIClient.get().sendPackage(p3Package)) {
@@ -213,6 +218,8 @@ public class UploadPackageTab implements Initializable {
         if (count == 0) {
             sendPackageUpdate(Alert.AlertType.ERROR, "Failed to upload all files! Maybe NetworkCoordinator is down?");
             updateText.setText("Failed to upload all files!");
+            PVIClient.get().setAwaitingAckResponse(false);
+            uploading = false;
             return;
         }
 
