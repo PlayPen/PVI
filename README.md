@@ -1,6 +1,6 @@
 # PlayPen Visual Interface (PVI)
 
-PVI is a JavaFX-based client for the PlayPen server management framework. Developed by The Chunk, maintained by @erosemberg.
+PVI is a JavaFX-based client for the PlayPen server management framework. Developed by The Chunk, maintained by @exception.
 
 ![PVI](https://i.imgur.com/Hl9G3ve.png)
 
