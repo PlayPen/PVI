@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.net.*?>
-<?import java.util.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.*?>
-
-<Tab text="Log" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="io.playpen.visual.controller.LogTabController">
-  <content>
-    <AnchorPane id="Content" minHeight="300.0" minWidth="300.0" prefHeight="500.0" prefWidth="500.0">
-      <TextArea id="" fx:id="consoleArea" disable="false" editable="false" prefHeight="400.0" prefWidth="600.0" style="" styleClass="console" text="Log console" wrapText="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-    </AnchorPane>
-  </content>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<Tab xmlns:fx="http://javafx.com/fxml/1" text="Log" xmlns="http://javafx.com/javafx/2.2"
+     fx:controller="io.playpen.visual.controller.LogTabController">
+    <content>
+        <AnchorPane id="Content" minHeight="300.0" minWidth="300.0" prefHeight="500.0" prefWidth="500.0">
+            <TextArea id="" fx:id="consoleArea" disable="false" editable="false" prefHeight="400.0" prefWidth="600.0"
+                      text="Log console" wrapText="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                      style="-fx-control-inner-background:#000000; -fx-font-family: Consolas; -fx-highlight-fill: #00ff00; -fx-highlight-text-fill: #000000; -fx-text-fill: #00ff00;"/>
+        </AnchorPane>
+    </content>
 </Tab>

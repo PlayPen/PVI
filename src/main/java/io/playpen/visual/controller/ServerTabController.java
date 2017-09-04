@@ -11,7 +11,15 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,37 +31,40 @@ import java.util.ResourceBundle;
 @Log4j2
 public class ServerTabController implements Initializable {
     @FXML
-    TextField uuidField;
+    private TextField uuidField;
 
     @FXML
-    TextField nameField;
+    private TextField nameField;
 
     @FXML
-    TextField packageField;
+    private TextField packageField;
 
     @FXML
-    TextField coordinatorField;
+    private TextField coordinatorField;
 
     @FXML
-    TableView<PropertyValue> propertyTable;
+    private TableView<PropertyValue> propertyTable;
 
     @FXML
-    TableColumn<PropertyValue, String> propertyColumn;
+    private TableColumn<PropertyValue, String> propertyColumn;
 
     @FXML
-    TableColumn<PropertyValue, String> valueColumn;
+    private TableColumn<PropertyValue, String> valueColumn;
 
     @FXML
-    TextArea consoleArea;
+    private TextArea consoleArea;
 
     @FXML
-    TextField inputField;
+    private TextField inputField;
 
     @FXML
-    Button sendButton;
+    private Button sendButton;
 
     @FXML
-    Button attachButton;
+    private Button clearConsole;
+
+    @FXML
+    private Button attachButton;
 
     @Getter
     @Setter
@@ -74,8 +85,8 @@ public class ServerTabController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        propertyColumn.setCellValueFactory(new PropertyValueFactory<PropertyValue, String>("name"));
-        valueColumn.setCellValueFactory(new PropertyValueFactory<PropertyValue, String>("value"));
+        propertyColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
 
         writeToConsole("Click \"Attach\" to attach to this console.");
 
@@ -84,7 +95,7 @@ public class ServerTabController implements Initializable {
         });
     }
 
-    public void setServer(Coordinator.LocalCoordinator coordinator, Coordinator.Server server) {
+    void setServer(Coordinator.LocalCoordinator coordinator, Coordinator.Server server) {
         this.server = server;
         this.coordinator = coordinator;
 
@@ -102,7 +113,7 @@ public class ServerTabController implements Initializable {
     }
 
     // Doesn't actually attach the console, it just sets up the UI and id stuff
-    public void attach(String consoleId) throws Exception {
+    void attach(String consoleId) throws Exception {
         if (this.consoleId != null) {
             throw new Exception("Trying to call attach() when we already have a console id!");
         }
@@ -112,6 +123,7 @@ public class ServerTabController implements Initializable {
         Platform.runLater(() -> {
             inputField.setDisable(false);
             sendButton.setDisable(false);
+            clearConsole.setDisable(false);
             attachButton.setText("Detach");
             attachButton.setDisable(false);
 
@@ -119,7 +131,7 @@ public class ServerTabController implements Initializable {
         });
     }
 
-    public void failAttach() {
+    void failAttach() {
         this.consoleId = null;
 
         Platform.runLater(() -> {
@@ -133,7 +145,7 @@ public class ServerTabController implements Initializable {
     }
 
     // Doesn't actually detach, just does ui and id stuff
-    public void detach() {
+    void detach() {
         this.consoleId = null;
 
         Platform.runLater(() -> {
@@ -146,7 +158,7 @@ public class ServerTabController implements Initializable {
         });
     }
 
-    public void writeToConsole(String str) {
+    void writeToConsole(String str) {
         consoleArea.appendText(str + "\n");
     }
 
@@ -161,13 +173,11 @@ public class ServerTabController implements Initializable {
                 alert.setHeaderText(null);
                 alert.setContentText("Unable to send console attach request.");
                 alert.showAndWait();
-            }
-            else {
+            } else {
                 transactionId = info.getId();
                 PVIApplication.get().showTransactionDialog("Attach Console", info, null);
             }
-        }
-        else {
+        } else {
             PVIClient.get().sendDetachConsole(this.consoleId);
             detach();
         }
@@ -183,8 +193,7 @@ public class ServerTabController implements Initializable {
 
         if (PVIClient.get().sendInput(coordinator.getUuid(), server.getUuid(), input + "\n")) {
             writeToConsole(">> " + input);
-        }
-        else {
+        } else {
             log.error("Unable to send input to " + coordinator.getUuid() + " server " + server.getUuid());
             writeToConsole("[[ ERROR SENDING INPUT ]]");
         }
@@ -208,22 +217,19 @@ public class ServerTabController implements Initializable {
                     success.setHeaderText(null);
                     success.setContentText("Sent deprovision of " + (server.hasName() ? server.getName() : server.getUuid()) + " to network.");
                     success.showAndWait();
-                }
-                else {
+                } else {
                     Alert err = new Alert(Alert.AlertType.ERROR);
                     err.setHeaderText(null);
                     err.setContentText("Unable to send deprovision to network.");
                     err.showAndWait();
                 }
-            }
-            else if(result == force) {
+            } else if (result == force) {
                 if (PVIClient.get().sendDeprovision(coordinator.getUuid(), server.getUuid(), true)) {
                     Alert success = new Alert(Alert.AlertType.INFORMATION);
                     success.setHeaderText(null);
                     success.setContentText("Sent force deprovision of " + (server.hasName() ? server.getName() : server.getUuid()) + " to network.");
                     success.showAndWait();
-                }
-                else {
+                } else {
                     Alert err = new Alert(Alert.AlertType.ERROR);
                     err.setHeaderText(null);
                     err.setContentText("Unable to send force deprovision to network.");
@@ -240,13 +246,17 @@ public class ServerTabController implements Initializable {
             success.setHeaderText(null);
             success.setContentText("Sent freeze of " + (server.hasName() ? server.getName() : server.getUuid()) + " to network.");
             success.showAndWait();
-        }
-        else {
+        } else {
             Alert err = new Alert(Alert.AlertType.ERROR);
             err.setHeaderText(null);
             err.setContentText("Unable to send freeze to network.");
             err.showAndWait();
         }
+    }
+
+    @FXML
+    protected void clearConsole(ActionEvent event) {
+        consoleArea.clear();
     }
 
     public static class PropertyValue {

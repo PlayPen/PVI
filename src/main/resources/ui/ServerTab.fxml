@@ -1,99 +1,135 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.net.*?>
-<?import java.util.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
-
-<Tab text="Log" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="io.playpen.visual.controller.ServerTabController">
-  <content>
-    <AnchorPane id="Content" minHeight="300.0" minWidth="300.0" prefHeight="500.0" prefWidth="800.0">
-      <SplitPane dividerPositions="0.6879699248120301" focusTraversable="true" prefHeight="500.0" prefWidth="800.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="-1.0">
-        <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
-            <children>
-              <VBox prefHeight="498.0" prefWidth="546.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                <children>
-                  <HBox id="HBox" alignment="CENTER" spacing="5.0">
-                    <children>
-                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Console">
-                        <font>
-                          <Font name="System Bold" size="12.0" />
-                        </font>
-                      </Text>
-                      <Button fx:id="attachButton" mnemonicParsing="false" onAction="#handleAttachButtonPressed" text="Attach" />
-                    </children>
-                  </HBox>
-                  <TextArea id="consoleField" fx:id="consoleArea" editable="false" prefWidth="200.0" wrapText="true" VBox.vgrow="ALWAYS" />
-                  <HBox id="inputField" prefHeight="-1.0" prefWidth="-1.0">
-                    <children>
-                      <TextField fx:id="inputField" disable="true" onAction="#handleSubmitInput" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-                      <Button fx:id="sendButton" disable="true" mnemonicParsing="false" onAction="#handleSubmitInput" text="Send" />
-                    </children>
-                  </HBox>
-                </children>
-              </VBox>
-            </children>
-            <padding>
-              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" fx:id="x1" />
-            </padding>
-          </AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" padding="$x1" prefHeight="498.0" prefWidth="379.0">
-            <children>
-              <VBox prefHeight="498.0" prefWidth="454.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Server">
-                    <font>
-                      <Font name="System Bold" size="16.0" />
-                    </font>
-                  </Text>
-                  <GridPane prefWidth="236.0">
-                    <children>
-                      <Label text="UUID" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                      <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                      <Label text="Package" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                      <Label text="Coordinator" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                      <TextField id="" fx:id="uuidField" editable="false" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                      <TextField id="" fx:id="nameField" editable="false" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                      <TextField fx:id="packageField" editable="false" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                      <TextField fx:id="coordinatorField" editable="false" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                    </children>
-                    <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="199.0" minWidth="10.0" prefWidth="68.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="335.0" minWidth="10.0" prefWidth="335.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                      <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                  </GridPane>
-                  <TableView fx:id="propertyTable" prefHeight="200.0" prefWidth="200.0">
-                    <columns>
-                      <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="97.0" text="Property" fx:id="propertyColumn" />
-                      <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="121.0" text="Value" fx:id="valueColumn" />
-                    </columns>
-                    <VBox.margin>
-                      <Insets fx:id="x2" />
-                    </VBox.margin>
-                  </TableView>
-                  <FlowPane hgap="10.0" padding="$x2" prefHeight="200.0" prefWidth="200.0" vgap="10.0" VBox.margin="$x2">
-                    <children>
-                      <Button mnemonicParsing="false" onAction="#handleDeprovisionButtonPressed" text="Deprovision" textFill="RED" />
-                      <Button mnemonicParsing="false" onAction="#handleFreezeButtonPressed" text="Freeze" textFill="#0029ff" />
-                    </children>
-                  </FlowPane>
-                </children>
-              </VBox>
-            </children>
-          </AnchorPane>
-        </items>
-      </SplitPane>
-    </AnchorPane>
-  </content>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<Tab xmlns:fx="http://javafx.com/fxml/1" text="Log" xmlns="http://javafx.com/javafx/2.2"
+     fx:controller="io.playpen.visual.controller.ServerTabController">
+    <content>
+        <AnchorPane id="Content" minHeight="300.0" minWidth="300.0" prefHeight="500.0" prefWidth="800.0">
+            <SplitPane dividerPositions="0.6879699248120301" focusTraversable="true" prefHeight="500.0"
+                       prefWidth="800.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0"
+                       AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="-1.0">
+                <items>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                        <children>
+                            <VBox prefHeight="498.0" prefWidth="546.0" AnchorPane.bottomAnchor="0.0"
+                                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <children>
+                                    <HBox id="HBox" alignment="CENTER" spacing="5.0">
+                                        <children>
+                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Console">
+                                                <font>
+                                                    <Font name="System Bold" size="12.0"/>
+                                                </font>
+                                            </Text>
+                                            <Button fx:id="attachButton" mnemonicParsing="false"
+                                                    onAction="#handleAttachButtonPressed" text="Attach"/>
+                                        </children>
+                                    </HBox>
+                                    <TextArea id="consoleField" fx:id="consoleArea" editable="false" prefWidth="200.0"
+                                              wrapText="true" VBox.vgrow="ALWAYS"
+                                              style="-fx-control-inner-background:#000000; -fx-font-family: Consolas; -fx-highlight-fill: #00ff00; -fx-highlight-text-fill: #000000; -fx-text-fill: #00ff00;"/>
+                                    <HBox id="inputField" prefHeight="-1.0" prefWidth="-1.0">
+                                        <children>
+                                            <TextField fx:id="inputField" disable="true" onAction="#handleSubmitInput"
+                                                       prefWidth="200.0" HBox.hgrow="ALWAYS"/>
+                                            <Button fx:id="sendButton" disable="true" mnemonicParsing="false"
+                                                    onAction="#handleSubmitInput" text="Send"/>
+                                            <Button fx:id="clearConsole" disable="true" mnemonicParsing="false"
+                                                    onAction="#clearConsole" text="Clear Console"/>
+                                        </children>
+                                    </HBox>
+                                </children>
+                            </VBox>
+                        </children>
+                        <padding>
+                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" fx:id="x1"/>
+                        </padding>
+                    </AnchorPane>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" padding="$x1" prefHeight="498.0" prefWidth="379.0">
+                        <children>
+                            <VBox prefHeight="498.0" prefWidth="454.0" spacing="10.0" AnchorPane.bottomAnchor="0.0"
+                                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Server">
+                                        <font>
+                                            <Font name="System Bold" size="16.0"/>
+                                        </font>
+                                    </Text>
+                                    <GridPane prefWidth="236.0">
+                                        <children>
+                                            <Label text="UUID" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                            <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                            <Label text="Package" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                            <Label text="Coordinator" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                                            <TextField id="" fx:id="uuidField" editable="false" prefWidth="200.0"
+                                                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                            <TextField id="" fx:id="nameField" editable="false" prefWidth="200.0"
+                                                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                            <TextField fx:id="packageField" editable="false" prefWidth="200.0"
+                                                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                            <TextField fx:id="coordinatorField" editable="false" prefWidth="200.0"
+                                                       GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                                        </children>
+                                        <columnConstraints>
+                                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="199.0" minWidth="10.0"
+                                                               prefWidth="68.0"/>
+                                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="335.0" minWidth="10.0"
+                                                               prefWidth="335.0"/>
+                                        </columnConstraints>
+                                        <rowConstraints>
+                                            <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0"
+                                                            vgrow="SOMETIMES"/>
+                                            <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0"
+                                                            vgrow="SOMETIMES"/>
+                                            <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0"
+                                                            vgrow="SOMETIMES"/>
+                                            <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0"
+                                                            vgrow="SOMETIMES"/>
+                                        </rowConstraints>
+                                    </GridPane>
+                                    <TableView fx:id="propertyTable" prefHeight="200.0" prefWidth="200.0">
+                                        <columns>
+                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="97.0"
+                                                         text="Property" fx:id="propertyColumn"/>
+                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="121.0"
+                                                         text="Value" fx:id="valueColumn"/>
+                                        </columns>
+                                        <VBox.margin>
+                                            <Insets fx:id="x2"/>
+                                        </VBox.margin>
+                                    </TableView>
+                                    <FlowPane hgap="10.0" padding="$x2" prefHeight="200.0" prefWidth="200.0" vgap="10.0"
+                                              VBox.margin="$x2">
+                                        <children>
+                                            <Button mnemonicParsing="false" onAction="#handleDeprovisionButtonPressed"
+                                                    text="Deprovision" textFill="RED"/>
+                                            <Button mnemonicParsing="false" onAction="#handleFreezeButtonPressed"
+                                                    text="Freeze" textFill="#0029ff"/>
+                                        </children>
+                                    </FlowPane>
+                                </children>
+                            </VBox>
+                        </children>
+                    </AnchorPane>
+                </items>
+            </SplitPane>
+        </AnchorPane>
+    </content>
 </Tab>

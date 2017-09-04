@@ -10,7 +10,7 @@ import java.util.ResourceBundle;
 
 public class LogTabController implements Initializable {
     @FXML
-    TextArea consoleArea;
+    private TextArea consoleArea;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

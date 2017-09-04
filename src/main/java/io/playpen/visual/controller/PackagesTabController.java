@@ -16,11 +16,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.net.URL;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class PackagesTabController implements Initializable {
     @FXML
-    TreeView<String> packageTree;
+    private TreeView<String> packageTree;
 
     @Getter
     @Setter
@@ -31,13 +36,12 @@ public class PackagesTabController implements Initializable {
 
     }
 
-    public void updatePackages(Commands.C_PackageList list) {
+    void updatePackages(Commands.C_PackageList list) {
         Map<String, List<PackageVersion>> packages = new HashMap<>();
         list.getPackagesList().forEach(p3 -> {
             if (packages.containsKey(p3.getId())) {
                 packages.get(p3.getId()).add(new PackageVersion(p3.getId(), p3.getVersion(), p3.getPromoted()));
-            }
-            else {
+            } else {
                 List<PackageVersion> versions = new LinkedList<>();
                 versions.add(new PackageVersion(p3.getId(), p3.getVersion(), p3.getPromoted()));
                 packages.put(p3.getId(), versions);
@@ -52,7 +56,7 @@ public class PackagesTabController implements Initializable {
             rootNode.getChildren().add(new PackageTreeItem(name, versions));
         });
 
-        rootNode.getChildren().sort((a, b) -> a.getValue().compareTo(b.getValue()));
+        rootNode.getChildren().sort(Comparator.comparing(TreeItem::getValue));
     }
 
     @FXML
@@ -65,8 +69,7 @@ public class PackagesTabController implements Initializable {
             alert.setHeaderText(null);
             alert.setContentText("Unable to send package list request to network.");
             alert.showAndWait();
-        }
-        else {
+        } else {
             PVIApplication.get().showTransactionDialog("Package List", info, null);
         }
     }
@@ -107,12 +110,10 @@ public class PackagesTabController implements Initializable {
                 alert.showAndWait();
                 return;
             }
-        }
-        else if (selectedItem instanceof VersionTreeItem) {
+        } else if (selectedItem instanceof VersionTreeItem) {
             VersionTreeItem item = (VersionTreeItem) selectedItem;
             version = item.getVersion();
-        }
-        else {
+        } else {
             PVIApplication.get().showExceptionDialog("This shouldn't happen!", "Invalid tree item found", new Exception());
             return;
         }
@@ -151,16 +152,14 @@ public class PackagesTabController implements Initializable {
             alert.showAndWait()
                     .map((r) -> {
                         handleRefreshButtonPressed(null);
-                        return (Object)null;
+                        return null;
                     });
-        }
-        else {
+        } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText(null);
             alert.setContentText("Unable to send promotion to network.");
             alert.showAndWait();
-            return;
         }
     }
 
@@ -170,7 +169,7 @@ public class PackagesTabController implements Initializable {
         private String version;
         private boolean promoted;
 
-        public PackageVersion(String name, String version, boolean promoted) {
+        PackageVersion(String name, String version, boolean promoted) {
             this.name = name;
             this.version = version;
             this.promoted = promoted;
@@ -181,7 +180,7 @@ public class PackagesTabController implements Initializable {
         @Getter
         private String name;
 
-        public PackageTreeItem(String name, List<PackageVersion> versions) {
+        PackageTreeItem(String name, List<PackageVersion> versions) {
             super(name);
             this.name = name;
 
@@ -194,7 +193,7 @@ public class PackagesTabController implements Initializable {
         @Getter
         private PackageVersion version;
 
-        public VersionTreeItem(PackageVersion version) {
+        VersionTreeItem(PackageVersion version) {
             super(version.getVersion() + (version.isPromoted() ? " [promoted]" : ""));
             this.version = version;
         }

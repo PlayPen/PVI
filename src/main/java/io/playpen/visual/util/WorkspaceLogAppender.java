@@ -24,52 +24,20 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @Plugin(name = "WorkspaceAppender", category = "Core", elementType = "appender", printObject = true)
 public class WorkspaceLogAppender extends AbstractAppender {
     private static WorkspaceLogAppender instance;
-
-    public static WorkspaceLogAppender get() {
-        return instance;
-    }
-
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
     private final Lock readLock = rwLock.readLock();
-
     @Setter
     private LogTabController logTabController;
+    private final Queue<String> logQueue = new LinkedList<>();
 
-    private Queue<String> logQueue = new LinkedList<>();
-
-    public void pumpQueue() {
-        if (logTabController == null)
-            return;
-
-        synchronized (logQueue) {
-            while (!logQueue.isEmpty()) {
-                logTabController.log(logQueue.remove());
-            }
-        }
-    }
-
-    protected WorkspaceLogAppender(String name, Filter filter, Layout<? extends Serializable> layout, final boolean ignoreExceptions) {
+    private WorkspaceLogAppender(String name, Filter filter, Layout<? extends Serializable> layout, final boolean ignoreExceptions) {
         super(name, filter, layout, ignoreExceptions);
 
         instance = this;
     }
 
-    @Override
-    public void append(LogEvent event) {
-        try {
-            String message = new String(getLayout().toByteArray(event));
-            synchronized (logQueue) {
-                logQueue.add(message);
-            }
-
-            if (logTabController != null) {
-                Platform.runLater(this::pumpQueue);
-            }
-        } catch (Exception ex) {
-            if (!ignoreExceptions()) {
-                throw new AppenderLoggingException(ex);
-            }
-        }
+    public static WorkspaceLogAppender get() {
+        return instance;
     }
 
     @PluginFactory
@@ -87,5 +55,29 @@ public class WorkspaceLogAppender extends AbstractAppender {
         }
 
         return new WorkspaceLogAppender(name, filter, layout, true);
+    }
+
+    public void pumpQueue() {
+        synchronized (logQueue) {
+            while (!logQueue.isEmpty()) {
+                logTabController.log(logQueue.remove());
+            }
+        }
+    }
+
+    @Override
+    public void append(LogEvent event) {
+        try {
+            String message = new String(getLayout().toByteArray(event));
+            synchronized (logQueue) {
+                logQueue.add(message);
+            }
+
+            Platform.runLater(this::pumpQueue);
+        } catch (Exception ex) {
+            if (!ignoreExceptions()) {
+                throw new AppenderLoggingException(ex);
+            }
+        }
     }
 }

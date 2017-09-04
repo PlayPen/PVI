@@ -7,8 +7,10 @@ import io.playpen.core.networking.TransactionManager;
 import io.playpen.visual.controller.ProvisionDialogController;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -19,6 +21,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.Getter;
@@ -35,6 +38,16 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public class PVIApplication extends Application {
     private static PVIApplication instance = null;
+    @Getter
+    boolean closing = false;
+    private Stage primaryStage;
+    @Getter
+    private PropertiesConfiguration config;
+
+    public PVIApplication() {
+        super();
+        instance = this;
+    }
 
     public static void main(String[] args) {
         launch(args);
@@ -42,19 +55,6 @@ public class PVIApplication extends Application {
 
     public static PVIApplication get() {
         return instance;
-    }
-
-    private Stage primaryStage;
-
-    @Getter
-    private PropertiesConfiguration config;
-
-    @Getter
-    boolean closing = false;
-
-    public PVIApplication() {
-        super();
-        instance = this;
     }
 
     @Override
@@ -102,6 +102,10 @@ public class PVIApplication extends Application {
             Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("ui/Workspace.fxml"));
             Scene scene = new Scene(root);
             primaryStage.setScene(scene);
+
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            primaryStage.setX((screenBounds.getWidth() - primaryStage.getWidth()) / 2);
+            primaryStage.setY((screenBounds.getHeight() - primaryStage.getHeight()) / 2);
         } catch (Exception e) {
             showExceptionDialog("Exception Encountered", "Unable to open main workspace", e);
             quit();
@@ -164,7 +168,7 @@ public class PVIApplication extends Application {
         stage.setScene(scene);
         stage.setTitle("Waiting for Process");
         stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setOnCloseRequest(event -> event.consume());
+        stage.setOnCloseRequest(Event::consume);
         stage.setResizable(false);
         stage.setX(primaryStage.getX() + primaryStage.getWidth() / 2d);
         stage.setY(primaryStage.getY() + primaryStage.getHeight() / 2d);
@@ -208,8 +212,8 @@ public class PVIApplication extends Application {
     }
 
     public void showProvisionDialog(String packageName, String packageVersion) {
-        Parent root = null;
-        ProvisionDialogController controller = null;
+        Parent root;
+        ProvisionDialogController controller;
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getClassLoader().getResource("ui/ProvisionDialog.fxml"));

@@ -14,8 +14,8 @@
     </Appenders>
     <Loggers>
         <Root level="info">
-            <AppenderRef ref="console" />
-            <AppenderRef ref="workspace" />
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="workspace"/>
         </Root>
         <Logger name="org.zeroturnaround.zip.ZipUtil" level="warn">
         </Logger>

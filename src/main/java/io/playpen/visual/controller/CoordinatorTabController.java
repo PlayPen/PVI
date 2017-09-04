@@ -9,7 +9,14 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import lombok.Getter;
@@ -21,28 +28,28 @@ import java.util.concurrent.TimeUnit;
 
 public class CoordinatorTabController implements Initializable {
     @FXML
-    TextField uuidField;
+    private TextField uuidField;
 
     @FXML
-    TextField nameField;
+    private TextField nameField;
 
     @FXML
-    CheckBox enabledField;
+    private CheckBox enabledField;
 
     @FXML
-    TableView<ResourceValue> resourcesTable;
+    private TableView<ResourceValue> resourcesTable;
 
     @FXML
-    TableColumn<ResourceValue, String> resourceColumn;
+    private TableColumn<ResourceValue, String> resourceColumn;
 
     @FXML
-    TableColumn<ResourceValue, Integer> valueColumn;
+    private TableColumn<ResourceValue, Integer> valueColumn;
 
     @FXML
-    ListView<String> attributesList;
+    private ListView<String> attributesList;
 
     @FXML
-    Text serversText;
+    private Text serversText;
 
     @Getter
     @Setter
@@ -57,7 +64,7 @@ public class CoordinatorTabController implements Initializable {
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
     }
 
-    public void setCoordinator(Coordinator.LocalCoordinator coordinator) {
+    void setCoordinator(Coordinator.LocalCoordinator coordinator) {
         this.coordinator = coordinator;
 
         uuidField.setText(coordinator.getUuid());
@@ -95,8 +102,7 @@ public class CoordinatorTabController implements Initializable {
                     info.showAndWait();
 
                     PVIClient.get().getScheduler().schedule(() -> PVIClient.get().sendListRequest(), 5, TimeUnit.SECONDS);
-                }
-                else {
+                } else {
                     Alert err = new Alert(Alert.AlertType.ERROR);
                     err.setTitle("Error");
                     err.setHeaderText(null);
@@ -111,7 +117,7 @@ public class CoordinatorTabController implements Initializable {
         private final SimpleStringProperty name;
         private final SimpleIntegerProperty value;
 
-        public ResourceValue(String name, int value) {
+        ResourceValue(String name, int value) {
             this.name = new SimpleStringProperty(name);
             this.value = new SimpleIntegerProperty(value);
         }

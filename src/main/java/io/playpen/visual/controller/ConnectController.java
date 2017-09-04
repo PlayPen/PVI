@@ -25,25 +25,25 @@ import java.util.ResourceBundle;
 @Log4j2
 public class ConnectController implements Initializable {
     @FXML
-    TextField nameInput;
+    private TextField nameInput;
 
     @FXML
-    TextField uuidInput;
+    private TextField uuidInput;
 
     @FXML
-    TextField keyInput;
+    private TextField keyInput;
 
     @FXML
-    TextField ipInput;
+    private TextField ipInput;
 
     @FXML
-    TextField portInput;
+    private TextField portInput;
 
     @FXML
-    Button connectButton;
+    private Button connectButton;
 
     @FXML
-    Text connectText;
+    private Text connectText;
 
     private Configuration config;
 
@@ -110,8 +110,7 @@ public class ConnectController implements Initializable {
         int port;
         try {
             port = Integer.parseUnsignedInt(portInput.getText());
-        }
-        catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             PVIApplication.get().showExceptionDialog("Unable to Connect", "Invalid port number.", e);
             connectText.setText("");
             connectText.setVisible(false);
@@ -142,12 +141,9 @@ public class ConnectController implements Initializable {
             protected Void call() throws Exception {
                 if (client.start()) {
                     Platform.runLater(() -> PVIApplication.get().openWorkspace());
-                }
-                else {
+                } else {
                     client.stop();
-                    Platform.runLater(() -> {
-                        showErrorDialog("Connection failed. Check ip address and port.");
-                    });
+                    Platform.runLater(() -> showErrorDialog("Connection failed. Check ip address and port."));
                 }
                 return null;
             }

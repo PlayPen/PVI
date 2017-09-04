@@ -8,37 +8,47 @@ import io.playpen.visual.PPEventListener;
 import io.playpen.visual.PVIApplication;
 import io.playpen.visual.PVIClient;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.fxml.JavaFXBuilderFactory;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseButton;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 @Log4j2
 public class WorkspaceController implements Initializable, PPEventListener {
     @FXML
-    TabPane tabPane;
+    private TabPane tabPane;
 
     @FXML
-    TreeView<String> coordinatorTree;
+    private TreeView<String> coordinatorTree;
 
     @FXML
-    TextField searchField;
+    private TextField searchField;
 
     private TreeItem<String> rootNode = new TreeItem<>("Network");
 
-    private Tab consoleTab;
     private PackagesTabController packagesTab;
+    private UploadPackageTab uploadPackageTab;
 
     private Map<String, CoordinatorTabController> coordinatorTabs = new HashMap<>();
     private Map<String, ServerTabController> serverTabs = new HashMap<>();
@@ -59,39 +69,44 @@ public class WorkspaceController implements Initializable, PPEventListener {
 
         try {
             URL url = getClass().getClassLoader().getResource("ui/LogTab.fxml");
-            consoleTab = FXMLLoader.load(url);
+            assert url != null;
+            Tab consoleTab = FXMLLoader.load(url);
             consoleTab.setClosable(false);
             tabPane.getTabs().add(consoleTab);
 
             FXMLLoader loader = new FXMLLoader();
+            FXMLLoader loaderTwo = new FXMLLoader();
             loader.setLocation(getClass().getClassLoader().getResource("ui/PackagesTab.fxml"));
             loader.setBuilderFactory(new JavaFXBuilderFactory());
             Tab tab = loader.load();
             tab.setClosable(false);
+            loaderTwo.setLocation(getClass().getClassLoader().getResource("ui/UploadPackageTab.fxml"));
+            Tab uploadTab = loaderTwo.load();
+            uploadTab.setClosable(false);
+
             tabPane.getTabs().add(tab);
+            tabPane.getTabs().addAll(uploadTab);
 
             packagesTab = loader.getController();
             packagesTab.setTab(tab);
+
+            uploadPackageTab = loaderTwo.getController();
+            uploadPackageTab.setTab(uploadTab);
 
             tabPane.getSelectionModel().select(consoleTab);
 
             searchField.textProperty().addListener((observable, oldValue, newValue) -> {
                 coordinatorTree.getSelectionModel().clearSelection();
                 if (newValue == null || newValue.trim().isEmpty()) {
-                    for (TreeItem<String> node : rootNode.getChildren())
-                    {
+                    for (TreeItem<String> node : rootNode.getChildren()) {
                         node.setExpanded(false);
                     }
-                }
-                else {
+                } else {
                     String searchStr = newValue.trim().toLowerCase();
-                    for (TreeItem<String> node : rootNode.getChildren())
-                    {
+                    for (TreeItem<String> node : rootNode.getChildren()) {
                         node.setExpanded(false);
-                        for (TreeItem<String> child : node.getChildren())
-                        {
-                            if (child.getValue().toLowerCase().contains(searchStr))
-                            {
+                        for (TreeItem<String> child : node.getChildren()) {
+                            if (child.getValue().toLowerCase().contains(searchStr)) {
                                 node.setExpanded(true);
                                 coordinatorTree.getSelectionModel().select(child);
                             }
@@ -120,8 +135,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
             alert.setHeaderText(null);
             alert.setContentText("Unable to send coordinator list request to network.");
             alert.showAndWait();
-        }
-        else {
+        } else {
             PVIApplication.get().showTransactionDialog("Network Refresh", info, null);
         }
     }
@@ -140,13 +154,11 @@ public class WorkspaceController implements Initializable, PPEventListener {
             alert.setContentText("Connected to PlayPen Network at " + PVIClient.get().getNetworkIP() + ":"
                     + PVIClient.get().getNetworkPort() + " as " + PVIClient.get().getName());
             alert.showAndWait();
-        }
-        else if (item instanceof CoordinatorTreeItem) {
-            Coordinator.LocalCoordinator coordinator = ((CoordinatorTreeItem)item).getCoordinator();
+        } else if (item instanceof CoordinatorTreeItem) {
+            Coordinator.LocalCoordinator coordinator = ((CoordinatorTreeItem) item).getCoordinator();
             if (coordinatorTabs.containsKey(coordinator.getUuid())) {
                 tabPane.getSelectionModel().select(coordinatorTabs.get(coordinator.getUuid()).getTab());
-            }
-            else {
+            } else {
                 try {
                     FXMLLoader loader = new FXMLLoader();
                     loader.setLocation(getClass().getClassLoader().getResource("ui/CoordinatorTab.fxml"));
@@ -168,15 +180,13 @@ public class WorkspaceController implements Initializable, PPEventListener {
                     PVIApplication.get().showExceptionDialog("Exception Encountered", "Unable to open tab for coordinator", e);
                 }
             }
-        }
-        else if(item instanceof ServerTreeItem) {
+        } else if (item instanceof ServerTreeItem) {
             ServerTreeItem serverTreeItem = (ServerTreeItem) item;
             Coordinator.LocalCoordinator coordinator = serverTreeItem.getCoordinator();
             Coordinator.Server server = serverTreeItem.getServer();
             if (serverTabs.containsKey(server.getUuid())) {
                 tabPane.getSelectionModel().select(serverTabs.get(server.getUuid()).getTab());
-            }
-            else {
+            } else {
                 try {
                     FXMLLoader loader = new FXMLLoader();
                     loader.setLocation(getClass().getClassLoader().getResource("ui/ServerTab.fxml"));
@@ -198,8 +208,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
                     controller.setTab(tab);
                     controller.setServer(coordinator, server);
                     serverTabs.put(server.getUuid(), controller);
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     PVIApplication.get().showExceptionDialog("Exception encountered", "Unable to open tab for server", e);
                 }
             }
@@ -216,8 +225,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
             alert.setHeaderText(null);
             alert.setContentText("Unable to send coordinator list request to network.");
             alert.showAndWait();
-        }
-        else {
+        } else {
             PVIApplication.get().showTransactionDialog("Network Refresh", info, null);
         }
     }
@@ -249,7 +257,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
                 }
             }
 
-            rootNode.getChildren().sort((a, b) -> a.getValue().compareTo(b.getValue()));
+            rootNode.getChildren().sort(Comparator.comparing(TreeItem::getValue));
             rootNode.setExpanded(true);
 
             Iterator<String> itr = coordinatorTabs.keySet().iterator();
@@ -263,7 +271,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
             }
 
             itr = serverTabs.keySet().iterator();
-            while(itr.hasNext()) {
+            while (itr.hasNext()) {
                 String uuid = itr.next();
                 if (!serverIds.contains(uuid)) {
                     ServerTabController controller = serverTabs.get(uuid);
@@ -360,8 +368,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
                 alert.setContentText("Successfully provisioned server with uuid " + response.getServerId() + " on coordinator " + c);
                 alert.showAndWait();
             });
-        }
-        else {
+        } else {
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
@@ -384,7 +391,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
         @Getter
         private Coordinator.LocalCoordinator coordinator;
 
-        public CoordinatorTreeItem(Coordinator.LocalCoordinator coordinator) {
+        CoordinatorTreeItem(Coordinator.LocalCoordinator coordinator) {
             super(coordinator.hasName() ? coordinator.getName() : coordinator.getUuid());
             this.coordinator = coordinator;
 
@@ -392,7 +399,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
                 this.getChildren().add(new ServerTreeItem(coordinator, server));
             }
 
-            this.getChildren().sort((a, b) -> a.getValue().compareTo(b.getValue()));
+            this.getChildren().sort(Comparator.comparing(TreeItem::getValue));
         }
     }
 
@@ -403,7 +410,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
         @Getter
         private Coordinator.LocalCoordinator coordinator;
 
-        public ServerTreeItem(Coordinator.LocalCoordinator coordinator, Coordinator.Server server) {
+        ServerTreeItem(Coordinator.LocalCoordinator coordinator, Coordinator.Server server) {
             super((server.hasName() ? server.getName() : server.getUuid()) + " (" + server.getP3().getId() + " @ " + server.getP3().getVersion() + ")");
             this.server = server;
             this.coordinator = coordinator;

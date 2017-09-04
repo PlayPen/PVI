@@ -26,25 +26,25 @@ import java.util.ResourceBundle;
 @Log4j2
 public class ProvisionDialogController implements Initializable {
     @FXML
-    TextField packageField;
+    private TextField packageField;
 
     @FXML
-    TextField versionField;
+    private TextField versionField;
 
     @FXML
-    TextField serverNameField;
+    private TextField serverNameField;
 
     @FXML
-    TextField coordinatorField;
+    private TextField coordinatorField;
 
     @FXML
-    TableView<PropertyValue> propertyTable;
+    private TableView<PropertyValue> propertyTable;
 
     @FXML
-    TableColumn<PropertyValue, String> nameColumn;
+    private TableColumn<PropertyValue, String> nameColumn;
 
     @FXML
-    TableColumn<PropertyValue, String> valueColumn;
+    private TableColumn<PropertyValue, String> valueColumn;
 
     @Getter
     @Setter
@@ -53,13 +53,13 @@ public class ProvisionDialogController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        nameColumn.setCellValueFactory(new PropertyValueFactory<PropertyValue, String>("name"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         nameColumn.setOnEditCommit(event -> {
             event.getTableView().getItems().get(event.getTablePosition().getRow()).setName(event.getNewValue());
         });
 
-        valueColumn.setCellValueFactory(new PropertyValueFactory<PropertyValue, String>("value"));
+        valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
         valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         valueColumn.setOnEditCommit(event -> {
             event.getTableView().getItems().get(event.getTablePosition().getRow()).setValue(event.getNewValue());
@@ -128,8 +128,7 @@ public class ProvisionDialogController implements Initializable {
             alert.setHeaderText(null);
             alert.setContentText("Unable to send provision request.");
             alert.showAndWait();
-        }
-        else {
+        } else {
             PVIApplication.get().showTransactionDialog("Provision Server", info, null);
             stage.close();
         }
@@ -139,7 +138,7 @@ public class ProvisionDialogController implements Initializable {
         private final SimpleStringProperty name;
         private final SimpleStringProperty value;
 
-        public PropertyValue(String name, String value) {
+        PropertyValue(String name, String value) {
             this.name = new SimpleStringProperty(name);
             this.value = new SimpleStringProperty(value);
         }
@@ -148,15 +147,15 @@ public class ProvisionDialogController implements Initializable {
             return name.get();
         }
 
-        public String getValue() {
-            return value.get();
-        }
-
         public void setName(String name) {
             this.name.set(name);
         }
 
-        public void setValue(String value) {
+        String getValue() {
+            return value.get();
+        }
+
+        void setValue(String value) {
             this.value.set(value);
         }
     }

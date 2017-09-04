@@ -1,71 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
-
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="400.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="io.playpen.visual.controller.ProvisionDialogController">
-  <children>
-    <VBox prefHeight="400.0" prefWidth="600.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      <children>
-        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Provision Server">
-          <font>
-            <Font name="System Bold" size="16.0" />
-          </font>
-        </Text>
-        <GridPane>
-          <children>
-            <Label text="Package" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <Label text="Version" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-            <TextField fx:id="packageField" editable="false" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-            <TextField fx:id="versionField" editable="false" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label text="Server Name" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <TextField fx:id="serverNameField" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label text="Coordinator" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-            <TextField fx:id="coordinatorField" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-          </children>
-          <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="289.0" minWidth="10.0" prefWidth="110.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="521.0" minWidth="10.0" prefWidth="270.0" />
-          </columnConstraints>
-          <rowConstraints>
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          </rowConstraints>
-        </GridPane>
-        <TableView fx:id="propertyTable" editable="true" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="false">
-          <columns>
-            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="182.0" text="Name" fx:id="nameColumn" />
-            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="176.0" text="Value" fx:id="valueColumn" />
-          </columns>
-        </TableView>
-        <HBox alignment="CENTER_RIGHT" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
-          <children>
-            <Button mnemonicParsing="false" onAction="#handlePropertyAddButtonPressed" text="+" />
-            <Button mnemonicParsing="false" onAction="#handlePropertyRemoveButtonPressed" text="x" textFill="RED" />
-          </children>
-        </HBox>
-        <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0">
-          <children>
-            <Text fill="GREY" strokeType="OUTSIDE" strokeWidth="0.0" text="Empty properties will be removed." />
-          </children>
-        </HBox>
-        <HBox alignment="CENTER_RIGHT" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
-          <children>
-            <Button mnemonicParsing="false" onAction="#handleCancelButtonPressed" text="Cancel" />
-            <Button mnemonicParsing="false" onAction="#handleProvisionButtonPressed" text="Provision" />
-          </children>
-        </HBox>
-      </children>
-      <padding>
-        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-      </padding>
-    </VBox>
-  </children>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" prefHeight="450.0" prefWidth="400.0"
+            xmlns="http://javafx.com/javafx/2.2" fx:controller="io.playpen.visual.controller.ProvisionDialogController">
+    <children>
+        <VBox prefHeight="400.0" prefWidth="600.0" spacing="10.0" AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Provision Server">
+                    <font>
+                        <Font name="System Bold" size="16.0"/>
+                    </font>
+                </Text>
+                <GridPane>
+                    <children>
+                        <Label text="Package" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <Label text="Version" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <TextField fx:id="packageField" editable="false" prefWidth="200.0" GridPane.columnIndex="1"
+                                   GridPane.rowIndex="0"/>
+                        <TextField fx:id="versionField" editable="false" prefWidth="200.0" GridPane.columnIndex="1"
+                                   GridPane.rowIndex="1"/>
+                        <Label text="Server Name" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                        <TextField fx:id="serverNameField" prefWidth="200.0" GridPane.columnIndex="1"
+                                   GridPane.rowIndex="2"/>
+                        <Label text="Coordinator" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                        <TextField fx:id="coordinatorField" prefWidth="200.0" GridPane.columnIndex="1"
+                                   GridPane.rowIndex="3"/>
+                    </children>
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="289.0" minWidth="10.0" prefWidth="110.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="521.0" minWidth="10.0" prefWidth="270.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                </GridPane>
+                <TableView fx:id="propertyTable" editable="true" prefHeight="200.0" prefWidth="200.0"
+                           tableMenuButtonVisible="false">
+                    <columns>
+                        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="182.0" text="Name"
+                                     fx:id="nameColumn"/>
+                        <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="176.0" text="Value"
+                                     fx:id="valueColumn"/>
+                    </columns>
+                </TableView>
+                <HBox alignment="CENTER_RIGHT" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#handlePropertyAddButtonPressed" text="+"/>
+                        <Button mnemonicParsing="false" onAction="#handlePropertyRemoveButtonPressed" text="x"
+                                textFill="RED"/>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0">
+                    <children>
+                        <Text fill="GREY" strokeType="OUTSIDE" strokeWidth="0.0"
+                              text="Empty properties will be removed."/>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER_RIGHT" prefHeight="-1.0" prefWidth="-1.0" spacing="10.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#handleCancelButtonPressed" text="Cancel"/>
+                        <Button mnemonicParsing="false" onAction="#handleProvisionButtonPressed" text="Provision"/>
+                    </children>
+                </HBox>
+            </children>
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </padding>
+        </VBox>
+    </children>
 </AnchorPane>
