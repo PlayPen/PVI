@@ -48,6 +48,7 @@ public class WorkspaceController implements Initializable, PPEventListener {
     private TreeItem<String> rootNode = new TreeItem<>("Network");
 
     private PackagesTabController packagesTab;
+    private UploadPackageTab uploadPackageTab;
 
     private Map<String, CoordinatorTabController> coordinatorTabs = new HashMap<>();
     private Map<String, ServerTabController> serverTabs = new HashMap<>();
@@ -74,14 +75,23 @@ public class WorkspaceController implements Initializable, PPEventListener {
             tabPane.getTabs().add(consoleTab);
 
             FXMLLoader loader = new FXMLLoader();
+            FXMLLoader loaderTwo = new FXMLLoader();
             loader.setLocation(getClass().getClassLoader().getResource("ui/PackagesTab.fxml"));
             loader.setBuilderFactory(new JavaFXBuilderFactory());
             Tab tab = loader.load();
             tab.setClosable(false);
+            loaderTwo.setLocation(getClass().getClassLoader().getResource("ui/UploadPackageTab.fxml"));
+            Tab uploadTab = loaderTwo.load();
+            uploadTab.setClosable(false);
+
             tabPane.getTabs().add(tab);
+            tabPane.getTabs().addAll(uploadTab);
 
             packagesTab = loader.getController();
             packagesTab.setTab(tab);
+
+            uploadPackageTab = loaderTwo.getController();
+            uploadPackageTab.setTab(uploadTab);
 
             tabPane.getSelectionModel().select(consoleTab);
 

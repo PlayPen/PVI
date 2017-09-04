@@ -1,9 +1,12 @@
 package io.playpen.visual;
 
+import com.google.protobuf.ByteString;
 import io.playpen.core.coordinator.PlayPen;
 import io.playpen.core.coordinator.api.APIClient;
 import io.playpen.core.networking.TransactionInfo;
 import io.playpen.core.networking.TransactionManager;
+import io.playpen.core.p3.P3Package;
+import io.playpen.core.p3.PackageException;
 import io.playpen.core.protocol.Commands;
 import io.playpen.core.protocol.Coordinator;
 import io.playpen.core.protocol.P3;
@@ -11,8 +14,17 @@ import io.playpen.core.protocol.Protocol;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Level;
+import sun.misc.Unsafe;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +37,10 @@ public class PVIClient extends APIClient {
     private InetAddress networkIp;
     private int networkPort;
     private List<PPEventListener> listeners = new LinkedList<>();
+
+    private boolean awaitingAckResponse = false;
+
+    private Unsafe unsafe;
 
     public PVIClient(String name, String uuid, String key, InetAddress ip, int port) {
         super();
@@ -69,7 +85,7 @@ public class PVIClient extends APIClient {
     public boolean start() {
         if (super.start()) {
             getChannel().closeFuture().addListener(channelFuture -> {
-                if (PVIApplication.get().isClosing())
+                if (PVIApplication.get().isClosing() || awaitingAckResponse)
                     return;
 
                 Platform.runLater(() -> {
@@ -134,6 +150,7 @@ public class PVIClient extends APIClient {
     @Override
     public boolean processAck(Commands.C_Ack c_ack, TransactionInfo transactionInfo) {
         log.info("ACK - " + (c_ack.hasResult() ? c_ack.getResult() : "no result"));
+        listeners.forEach(listener -> listener.receivedAck(c_ack));
         return true;
     }
 
@@ -438,5 +455,177 @@ public class PVIClient extends APIClient {
 
         log.info("Sending C_PROMOTE to network coordinator");
         return TransactionManager.get().send(info.getId(), message, null);
+    }
+
+    public boolean sendPackage(P3Package p3) {
+        if(!p3.isResolved()) {
+            log.error("Cannot pass an unresolved package to sendPackage");
+            return false;
+        }
+
+        P3.P3Meta meta = P3.P3Meta.newBuilder()
+                .setId(p3.getId())
+                .setVersion(p3.getVersion())
+                .build();
+
+        try {
+            p3.calculateChecksum();
+        }
+        catch (PackageException e) {
+            log.log(Level.ERROR, "Unable to calculate package checksum", e);
+            return false;
+        }
+
+        File packageFile = new File(p3.getLocalPath());
+        long fileLength = packageFile.length();
+        if (fileLength / 1024 / 1024 > 100) {
+            log.info("Sending chunked package " + p3.getId() + " at " + p3.getVersion());
+           log.info("Checksum: " + p3.getChecksum());
+
+            TransactionInfo info = TransactionManager.get().begin();
+
+            Commands.BaseCommand noop = Commands.BaseCommand.newBuilder()
+                    .setType(Commands.BaseCommand.CommandType.NOOP)
+                    .build();
+
+            Protocol.Transaction noopMessage = TransactionManager.get()
+                    .build(info.getId(), Protocol.Transaction.Mode.CREATE, noop);
+            if (noopMessage == null) {
+                log.info("Unable to build transaction for split package response");
+                return false;
+            }
+
+            if (!TransactionManager.get().send(info.getId(), noopMessage, null)) {
+                log.info("Unable to send transaction for split package response");
+                return false;
+            }
+
+            try (FileInputStream in = new FileInputStream(packageFile)) {
+                byte[] packageBytes = new byte[1048576];
+                int chunkLen;
+                int chunkId = 0;
+                while ((chunkLen = in.read(packageBytes)) != -1) {
+                    P3.SplitPackageData data = P3.SplitPackageData.newBuilder()
+                            .setMeta(meta)
+                            .setEndOfFile(false)
+                            .setChunkId(chunkId)
+                            .setData(ByteString.copyFrom(packageBytes, 0, chunkLen))
+                            .build();
+
+                    Commands.C_UploadSplitPackage response = Commands.C_UploadSplitPackage.newBuilder()
+                            .setData(data)
+                            .build();
+
+                    Commands.BaseCommand command = Commands.BaseCommand.newBuilder()
+                            .setType(Commands.BaseCommand.CommandType.C_UPLOAD_SPLIT_PACKAGE)
+                            .setCUploadSplitPackage(response)
+                            .build();
+
+                    Protocol.Transaction message = TransactionManager.get()
+                            .build(info.getId(), Protocol.Transaction.Mode.CONTINUE, command);
+                    if (message == null) {
+                        System.out.println("Unable to build transaction for split package response");
+                        return false;
+                    }
+
+                    if (!TransactionManager.get().send(info.getId(), message, null)) {
+                        log.info("Unable to send transaction for split package response");
+                        return false;
+                    }
+
+                    ++chunkId;
+                }
+
+                P3.SplitPackageData data = P3.SplitPackageData.newBuilder()
+                        .setMeta(meta)
+                        .setEndOfFile(true)
+                        .setChecksum(p3.getChecksum())
+                        .setChunkCount(chunkId)
+                        .build();
+
+                Commands.C_UploadSplitPackage response = Commands.C_UploadSplitPackage.newBuilder()
+                        .setData(data)
+                        .build();
+
+                Commands.BaseCommand command = Commands.BaseCommand.newBuilder()
+                        .setType(Commands.BaseCommand.CommandType.C_UPLOAD_SPLIT_PACKAGE)
+                        .setCUploadSplitPackage(response)
+                        .build();
+
+                Protocol.Transaction message = TransactionManager.get()
+                        .build(info.getId(), Protocol.Transaction.Mode.COMPLETE, command);
+                if (message == null) {
+                    log.info("Unable to build transaction for split package response");
+                    return false;
+                }
+
+                log.info("Finishing split package response (" + chunkId + " chunks)");
+                log.info("Checksum: " + p3.getChecksum());
+
+                return TransactionManager.get().send(info.getId(), message, null);
+            } catch (IOException e) {
+                log.error("Unable to read package data", e);
+                return false;
+            }
+        } else {
+            ByteString packageData;
+            try (InputStream stream = Files.newInputStream(Paths.get(p3.getLocalPath()))) {
+                packageData = ByteString.readFrom(stream);
+            }
+            catch(IOException e) {
+                log.fatal("Unable to read package file", e);
+                return false;
+            }
+
+            try {
+                p3.calculateChecksum();
+            } catch (PackageException e) {
+                log.error("Unable to calculate checksum on package", e);
+                return false;
+            }
+
+            Commands.C_UploadPackage upload = Commands.C_UploadPackage.newBuilder()
+                    .setData(P3.PackageData.newBuilder()
+                            .setMeta(P3.P3Meta.newBuilder().setId(p3.getId()).setVersion(p3.getVersion()))
+                            .setChecksum(p3.getChecksum())
+                            .setData(packageData))
+                    .build();
+
+            Commands.BaseCommand command = Commands.BaseCommand.newBuilder()
+                    .setType(Commands.BaseCommand.CommandType.C_UPLOAD_PACKAGE)
+                    .setCUploadPackage(upload)
+                    .build();
+
+            TransactionInfo info = TransactionManager.get().begin();
+
+            Protocol.Transaction message = TransactionManager.get()
+                    .build(info.getId(), Protocol.Transaction.Mode.SINGLE, command);
+            if(message == null) {
+                log.error("Unable to build message for C_UPLOAD_PACKAGE");
+                TransactionManager.get().cancel(info.getId());
+                return false;
+            }
+
+            return TransactionManager.get().send(info.getId(), message, null);
+        }
+    }
+
+    public Unsafe getUnsafe() {
+        if (unsafe == null) {
+            Field theUnsafe;
+            try {
+                theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+                theUnsafe.setAccessible(true);
+                unsafe = (Unsafe) theUnsafe.get(null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return unsafe;
+    }
+
+    public void setAwaitingAckResponse(boolean awaitingAckResponse) {
+        this.awaitingAckResponse = awaitingAckResponse;
     }
 }

@@ -4,19 +4,39 @@ import io.playpen.core.networking.TransactionInfo;
 import io.playpen.core.protocol.Commands;
 
 public interface PPEventListener {
-    void receivedListResponse(Commands.C_CoordinatorListResponse response, TransactionInfo info);
+    default void receivedListResponse(Commands.C_CoordinatorListResponse response, TransactionInfo info) {
 
-    void receivedConsoleAttach(String consoleId, TransactionInfo info);
+    }
 
-    void receivedConsoleAttachFail(TransactionInfo info);
+    default void receivedConsoleAttach(String consoleId, TransactionInfo info) {
 
-    void receivedDetachConsole(String consoleId, TransactionInfo info);
+    }
 
-    void receivedConsoleMessage(String consoleId, String value, TransactionInfo info);
+    default void receivedConsoleAttachFail(TransactionInfo info) {
 
-    void receivedPackageList(Commands.C_PackageList list, TransactionInfo info);
+    }
 
-    void receivedProvisionResponse(Commands.C_ProvisionResponse response, TransactionInfo info);
+    default void receivedDetachConsole(String consoleId, TransactionInfo info) {
 
-    void receivedAccessDenied(Commands.C_AccessDenied message, TransactionInfo info);
+    }
+
+    default void receivedConsoleMessage(String consoleId, String value, TransactionInfo info) {
+
+    }
+
+    default void receivedPackageList(Commands.C_PackageList list, TransactionInfo info) {
+
+    }
+
+    default void receivedProvisionResponse(Commands.C_ProvisionResponse response, TransactionInfo info) {
+
+    }
+
+    default void receivedAccessDenied(Commands.C_AccessDenied message, TransactionInfo info) {
+
+    }
+
+    default void receivedAck(Commands.C_Ack c_ack) {
+
+    }
 }
