@@ -4,6 +4,7 @@ import io.playpen.core.networking.TransactionInfo;
 import io.playpen.core.networking.TransactionManager;
 import io.playpen.core.protocol.Commands;
 import io.playpen.core.protocol.Coordinator;
+import io.playpen.core.utils.AuthUtils;
 import io.playpen.visual.PPEventListener;
 import io.playpen.visual.PVIApplication;
 import io.playpen.visual.PVIClient;
@@ -13,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.fxml.JavaFXBuilderFactory;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -20,19 +22,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseButton;
+import javafx.stage.FileChooser;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.*;
 
 @Log4j2
 public class WorkspaceController implements Initializable, PPEventListener {
@@ -385,6 +386,57 @@ public class WorkspaceController implements Initializable, PPEventListener {
         Platform.runLater(() -> PVIApplication.get().showExceptionDialog("Access Denied",
                 "Access was denied by the network for an operation",
                 new Exception(message.getResult())));
+    }
+
+    @Override
+    public void receivedPackageResponse(final Commands.PackageResponse response, TransactionInfo info) {
+        Platform.runLater(() -> {
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Save Playpen Package: " + response.getData().getMeta().getId() + " @ " + response.getData().getMeta().getVersion());
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Playpen Package", "*.p3"));
+            chooser.setInitialFileName(response.getData().getMeta().getId() + "_" + response.getData().getMeta().getVersion() + ".p3");
+            File file = chooser.showSaveDialog(tabPane.getScene().getWindow());
+            if (file != null) {
+                log.info("Writing received package " + response.getData().getMeta().getId() + " @ " + response.getData().getMeta().getVersion()
+                    + " to " + file.getAbsolutePath());
+                try (OutputStream output = Files.newOutputStream(file.toPath(), StandardOpenOption.CREATE)) {
+                    response.getData().getData().writeTo(output);
+                }
+                catch (IOException e) {
+                    PVIApplication.get().showExceptionDialog("Unable to write package file",
+                            "Unable to write the package " + response.getData().getMeta().getId() + " @ " + response.getData().getMeta().getVersion()
+                                    + " to " + file.getAbsolutePath(),
+                            e);
+                    return;
+                }
+
+                String checksum = null;
+                try {
+                    checksum = AuthUtils.createPackageChecksum(file.getAbsolutePath());
+                }
+                catch (IOException e) {
+                    PVIApplication.get().showExceptionDialog("Unable to calculate package checksum",
+                            "Unable to calculate the package checksum. The package has still been saved. Package: "
+                                    + response.getData().getMeta().getId() + " @ " + response.getData().getMeta().getVersion(),
+                            e);
+                    return;
+                }
+
+                if (!checksum.equals(response.getData().getChecksum())) {
+                    PVIApplication.get().showExceptionDialog("Package Checksum Mismatch",
+                            "Package " + response.getData().getMeta().getId() + " @ " + response.getData().getMeta().getVersion()
+                            + " was received but the local checksum does not match what we were sent. The package has still been saved.",
+                            new Exception("Package checksum mismatch: found " + checksum + ", expected " + response.getData().getChecksum()));
+                    return;
+                }
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Package Downloaded");
+                alert.setHeaderText(response.getData().getMeta().getId() + " @ " + response.getData().getMeta().getVersion());
+                alert.setContentText("Package saved to " + file.getAbsolutePath());
+                alert.showAndWait();
+            }
+        });
     }
 
     private static final class CoordinatorTreeItem extends TreeItem<String> {

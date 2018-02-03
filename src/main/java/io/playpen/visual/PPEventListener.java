@@ -39,4 +39,8 @@ public interface PPEventListener {
     default void receivedAck(Commands.C_Ack c_ack) {
 
     }
+
+    default void receivedPackageResponse(Commands.PackageResponse response, TransactionInfo info) {
+
+    }
 }

@@ -29,6 +29,8 @@
                                 <Button mnemonicParsing="false" onAction="#handlePromoteButtonPressed" text="Promote"/>
                                 <Button mnemonicParsing="false" onAction="#handleProvisionButtonPressed"
                                         text="Provision"/>
+                                <Button mnemonicParsing="false" onAction="#handleDownloadButtonPressed"
+                                        text="Download"/>
                             </children>
                             <padding>
                                 <Insets/>

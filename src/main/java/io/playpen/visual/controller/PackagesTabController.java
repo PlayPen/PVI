@@ -163,6 +163,41 @@ public class PackagesTabController implements Initializable {
         }
     }
 
+    @FXML
+    protected void handleDownloadButtonPressed(ActionEvent event) {
+        TreeItem<String> selectedItem = packageTree.getSelectionModel().getSelectedItem();
+        if (selectedItem == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("You must select a package to download!");
+            alert.showAndWait();
+            return;
+        }
+
+        if (!(selectedItem instanceof VersionTreeItem)) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("You must select a specific version to download!");
+            alert.showAndWait();
+            return;
+        }
+
+        VersionTreeItem item = (VersionTreeItem) selectedItem;
+
+        TransactionInfo info = PVIClient.get().sendPackageRequest(item.getVersion().getName(), item.getVersion().getVersion());
+        if (info == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Unable to send download request.");
+            alert.showAndWait();
+        } else {
+            PVIApplication.get().showTransactionDialog("Download Package", info, null);
+        }
+    }
+
     @Data()
     private static final class PackageVersion {
         private String name;

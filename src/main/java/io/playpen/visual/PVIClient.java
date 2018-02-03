@@ -168,6 +168,13 @@ public class PVIClient extends APIClient {
         return true;
     }
 
+    @Override
+    public boolean processPackageResponse(Commands.PackageResponse response, TransactionInfo info) {
+        log.info("Received package response containing " + response.getData().getMeta().getId() + " @ " + response.getData().getMeta().getVersion());
+        listeners.forEach(listener -> listener.receivedPackageResponse(response, info));
+        return true;
+    }
+
     public void addEventListener(PPEventListener listener) {
         listeners.add(listener);
     }
@@ -608,6 +615,38 @@ public class PVIClient extends APIClient {
 
             return TransactionManager.get().send(info.getId(), message, null);
         }
+    }
+
+    public TransactionInfo sendPackageRequest(String id, String version) {
+        P3.P3Meta meta = P3.P3Meta.newBuilder()
+                .setId(id)
+                .setVersion(version)
+                .build();
+
+        Commands.PackageRequest request = Commands.PackageRequest.newBuilder()
+                .setP3(meta)
+                .build();
+
+        Commands.BaseCommand command = Commands.BaseCommand.newBuilder()
+                .setType(Commands.BaseCommand.CommandType.PACKAGE_REQUEST)
+                .setPackageRequest(request)
+                .build();
+
+        TransactionInfo info = TransactionManager.get().begin();
+
+        Protocol.Transaction message = TransactionManager.get()
+                .build(info.getId(), Protocol.Transaction.Mode.CREATE, command);
+        if (message == null) {
+            log.error("Unable to build message for PACKAGE_REQUEST");
+            TransactionManager.get().cancel(info.getId());
+            return null;
+        }
+
+        log.info("Sending package request of " + id + " @ " + version);
+        if (TransactionManager.get().send(info.getId(), message, null))
+            return info;
+
+        return null;
     }
 
     public Unsafe getUnsafe() {
