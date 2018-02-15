@@ -205,7 +205,7 @@ public class ServerTabController implements Initializable {
         alert.setHeaderText("Are you sure you want to deprovision " + (server.hasName() ? server.getName() : server.getUuid()) + "?");
         alert.setContentText("Forcing will cause the server process to immediately exit.");
 
-        ButtonType deprovision = new ButtonType("Deprovision");
+        ButtonType deprovision = new ButtonType("Deprovision", ButtonBar.ButtonData.OK_DONE);
         ButtonType force = new ButtonType("Force");
         ButtonType cancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
         alert.getButtonTypes().setAll(deprovision, force, cancel);
